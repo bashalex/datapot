@@ -6,6 +6,9 @@ class TestBoolTransformer(BaseTransformer):
     Replaces 'False' and 'True' with zeros and ones
     """
 
+    def requires_fit(self):
+        return False
+
     def __str__(self):
         return 'TestBoolToIntTransformer'
 
@@ -21,10 +24,10 @@ class TestBoolTransformer(BaseTransformer):
         return 'binary'
 
     @staticmethod
-    def validate(value) -> bool:
+    def validate(field, value):
         return isinstance(value, bool)
 
-    def fit(self, data):
+    def fit(self, all_values):
         # do nothing
         pass
 

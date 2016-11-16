@@ -5,21 +5,33 @@ class BaseTransformer(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def validate(value) -> bool:
+    def validate(field, value):
         """
         To Override
-        :param value: value to check
+        :param field: the name of the field
+        :param value: value to check; can be simple object as int, String etc; dict or list
         :return: boolean, whether the value is suitable for the transformer
         """
         pass
 
     @abstractmethod
-    def fit(self, data):
+    def requires_fit(self):
         """
         To Override
-        :param data: iterable that contains strings representing Json object
-                     OR file where every line contains one Json object
-        fits itself using given data
+        This method reduce amount of operations because when we fit out transformer
+        we use list of values from particular field from all objects in training dataset.
+        And it's a quite slow operation to extract this list of values
+
+        :return: bool, whether transformer requires fitting before transforming
+        """
+        pass
+
+    @abstractmethod
+    def fit(self, all_values):
+        """
+        To Override
+        :param all_values: list of particular values from every object in data
+        fits itself using given values
         """
 
     @abstractmethod
@@ -39,3 +51,9 @@ class BaseTransformer(metaclass=ABCMeta):
         :return list of generated features names in the same order as 'transform' method returns them
         """
         pass
+
+    def __str__(self):
+        return 'BaseTransformer'
+
+    def __repr__(self):
+        return self.__str__()

@@ -27,16 +27,16 @@ class DataPot:
         # 'field name' -> list of suitable transformers
         # TODO: decide how to choose one of them
         self.__fields = {}
-        self.__num_features_after_transform = None
+        self.__num_new_features = None
 
     def __str__(self):
         res = 'DataPot class instance\n'
         res += ' - number of features without transformation: {}\n'.format(len(self.__fields.keys()))
-        res += ' - number of features after transformation: '
-        if self.__num_features_after_transform is None:
+        res += ' - number of new features: '
+        if self.__num_new_features is None:
             res += 'Unknown\n'
         else:
-            res += '{}\n'.format(self.__num_features_after_transform)
+            res += '{}\n'.format(self.__num_new_features)
         res += 'features to transform: \n'
         for x in self.__fields.items():
             if len(x[1]) > 0:
@@ -53,7 +53,7 @@ class DataPot:
         :param limit: max number of objects to use for fitting
         """
         # clear params
-        self.__num_features_after_transform = None
+        self.__num_new_features = None
         self.__fields = {}
 
         decoder = json.JSONDecoder()
@@ -63,22 +63,15 @@ class DataPot:
             # decode string to dictionary
             obj_fields = decoder.decode(obj)
             for name, value in obj_fields.items():
-                self.__for_each_field_call(name, value, self.__ask_transformers)
+                self.__parse(name, value)
             if n == limit:
                 break
         self.__move_pointer_to_start(data)
+        self.__num_new_features = self.__num_of_new_features()
 
-    def transform(self, data):
+    def transform(self, data, verbose=False):
         """
-        :param data: iterable that contains strings representing Json object
-                     OR file where every line contains one Json object
-        :return: list of transformed json objects with added features
-        """
-        # TODO: implement later
-        pass
-
-    def extract(self, data) -> pd.DataFrame:
-        """
+        :param verbose: if true prints progress
         :important: this method calls both 'fit' and 'transform' methods of transformers
         :param data: iterable that contains strings representing Json object
                      OR file where every line contains one Json object
@@ -90,8 +83,12 @@ class DataPot:
         # get all feature names
         names = self.__all_features_names()
 
+        if verbose:
+            print('fit transformers...')
         # fit transformers
-        self.__fit_transformers(data)
+        self.__fit_transformers(data, verbose)
+        if verbose:
+            print('fit transformers...OK')
 
         self.__move_pointer_to_start(data)
         for obj in data:
@@ -107,7 +104,10 @@ class DataPot:
         self.__move_pointer_to_start(data)
 
         # save final number of features
-        self.__num_features_after_transform = len(rows[0])
+        self.__num_new_features = len(rows[0])
+
+        if verbose:
+            print("num of new features:", self.__num_new_features)
 
         # convert list to DataFrame
         df = pd.DataFrame(data=rows, columns=names)
@@ -135,25 +135,42 @@ class DataPot:
                     result.append('{}_{}'.format(_field, suffixes))
         return result
 
-    def __fit_transformers(self, data):
+    def __fit_transformers(self, data, verbose):
         """
         fit every transformer with given data
         :param data: data for fitting
         """
         for x in self.__fields.items():
+            if len(x[1]) == 0:
+                continue
+            if verbose:
+                print("fit: {}".format(x))
+            values = None
             for i in range(len(x[1])):
+                if not x[1][i].requires_fit():
+                    continue
                 self.__move_pointer_to_start(data)
-                x[1][i].fit(data)
+                if values is None:
+                    values = self.__extract_all_values(data, x[0].split('.'))
+                x[1][i].fit(values)
 
     def __generate_feature(self, obj, field, transformers):
 
-        # let's say we always apply only first transformer from the list
-        # TODO: change it later
-        t = transformers[0] if len(transformers) > 0 else None
-
         value = self.__extract_value(obj, field.split('.'))
 
-        return value if t is None else t.transform(value)
+        if len(transformers) == 0:
+            return value  # nothing to apply
+
+        res = []
+
+        # apply all available transformers
+        for t in transformers:
+            r = t.transform(value)
+            if isinstance(r, list):
+                res += r
+            else:
+                res.append(r)
+        return res
 
     def __extract_value(self, obj, location):
         """
@@ -171,41 +188,77 @@ class DataPot:
                 return None
         return obj
 
-    def __for_each_field_call(self, name, value, func):
+    def __extract_all_values(self, data, location):
         """
-        parses json object and calls 'func' for each field
+        :param data: iterable that contains strings representing Json object
+                     OR file where every line contains one Json object
+        :param location: location of the field
+        :return: list of extracted values from the given field from all objects in data
+        """
+        decoder = json.JSONDecoder()
+        result = []
+        for obj in data:
+            obj_fields = decoder.decode(obj)
+            result.append(self.__extract_value(obj_fields, location))
+        return result
+
+    def __parse(self, name, value):
+        """
+        parses json object and associates suitable transformers for fields
         :param name: name of current field
         :param value: value in the field
-        :param func: function to call
         """
+        final_obj = self.__ask_transformers(name, value)
+        if final_obj:
+            return  # doesn't make sense to parse further
+
         if isinstance(value, list):
             for i, obj in enumerate(value):
-                self.__for_each_field_call(name + '.{}'.format(i), obj, func)
+                self.__parse(name + '.{}'.format(i), obj)
         elif isinstance(value, dict):
             for _name, _value in value.items():
-                self.__for_each_field_call(name + '.' + _name, _value, func)
+                self.__parse(name + '.' + _name, _value)
         else:
-            func(name, value)
+            # no one transformer is suitable for the given field
+            # but we can add it to the list of fields
+            # in order to leave it in final dataset though without any transformation
+            self.__fields[name] = []
 
     def __ask_transformers(self, name, value):
         """
-        searching for for suitable transformers
+        searching for suitable transformers
         :param name: field name
         :param value: value in the field
+        :return: bool, whether at least one transformer is suitable for the given field
         """
         if name in self.__fields.keys():
             # value from the same field was already checked
             _transformers = self.__fields.get(name)
             num = 0
             while num < len(_transformers):
-                if not _transformers[num].validate(value):
+                if not _transformers[num].validate(name, value):
                     del _transformers[num]
                 else:
                     num += 1
-            return
+            if num == 0 and (isinstance(value, list) or isinstance(value, dict)):
+                # remove field at all if it is a complex field (array or json object)
+                # it doesn't work correctly in all cases!
+                # because result depends on order of objects
+                # TODO: change this logic
+                self.__fields.pop(name)
+            return num > 0  # at least one transformer left in the list
 
         suitable_transformers = []
         for _transformer in self.__transformers:
-            if _transformer.validate(value):
+            if _transformer.validate(name, value):
                 suitable_transformers.append(_transformer())
-        self.__fields[name] = suitable_transformers
+
+        # add field to the set if at least one transformer was added
+        if len(suitable_transformers) > 0:
+            self.__fields[name] = suitable_transformers
+
+        return len(suitable_transformers) > 0  # at least one transformer was added
+
+    def __num_of_new_features(self):
+        return sum([1 if isinstance(t.names(), str) else len(t.names())
+                    for _field, _transformers in self.__fields.items() for t in _transformers])

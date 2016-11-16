@@ -7,6 +7,9 @@ class TestTimestampTransformer(BaseTransformer):
     Replaces timestamps with date and time
     """
 
+    def requires_fit(self):
+        return True
+
     def __str__(self):
         return 'TestTimestampTransformer'
 
@@ -22,10 +25,10 @@ class TestTimestampTransformer(BaseTransformer):
         return ['date', 'time']
 
     @staticmethod
-    def validate(value) -> bool:
+    def validate(field, value):
         return isinstance(value, int) and value > 1000000000
 
-    def fit(self, data):
+    def fit(self, all_values):
         # do nothing
         pass
 
