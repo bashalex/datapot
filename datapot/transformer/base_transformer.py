@@ -14,8 +14,9 @@ class BaseTransformer(metaclass=ABCMeta):
         """
         pass
 
+    @staticmethod
     @abstractmethod
-    def requires_fit(self):
+    def requires_fit():
         """
         To Override
         This method reduce amount of operations because when we fit out transformer
@@ -43,9 +44,8 @@ class BaseTransformer(metaclass=ABCMeta):
         """
         pass
 
-    @staticmethod
     @abstractmethod
-    def names():
+    def names(self):
         """
         To Override
         :return list of generated features names in the same order as 'transform' method returns them

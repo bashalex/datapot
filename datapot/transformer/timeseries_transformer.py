@@ -5,7 +5,9 @@ from tsfresh.feature_extraction.feature_calculators import \
         skewness, symmetry_looking, count_above_mean, count_below_mean
 
 class TimeSeriesTransformer(BaseTransformer):
-    def requires_fit(self):
+
+    @staticmethod
+    def requires_fit():
         return False
 
     def __str__(self):
@@ -38,8 +40,7 @@ class TimeSeriesTransformer(BaseTransformer):
         return abs(_phi(m + 1) - _phi(m))
         """
 
-    @staticmethod
-    def names():
+    def names(self):
         return ['ts_abs_energy', 'ts_kurtosis', 'ts_mean_abs_change', 'ts_mean_autocorrelation', \
         'ts_skewness', 'ts_count_above_mean', 'ts_count_below_mean']
 
@@ -57,7 +58,7 @@ class TimeSeriesTransformer(BaseTransformer):
             return False #assume series is way too stochastic
         return True
 
-    def fit():
+    def fit(self, all_values):
         pass
 
     def transform(self, value):

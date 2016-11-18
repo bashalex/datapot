@@ -58,8 +58,7 @@ class TfidfTransformer(BaseTextTransformer):
         super().__init__()
         self.vectorizer = TfidfVectorizer()
 
-    @staticmethod
-    def names():
+    def names(self):
         return "Tfidf"
 
     def _detect_parameters(self, text_feature):

@@ -6,7 +6,8 @@ class TestComplexTransformer(BaseTransformer):
     Transform array of ints to their sum divided on average length of array in training set
     """
 
-    def requires_fit(self):
+    @staticmethod
+    def requires_fit():
         return True
 
     def __str__(self):
@@ -41,8 +42,7 @@ class TestComplexTransformer(BaseTransformer):
         # actually it doesn't make any sense but who cares
         self.average_len_of_array = sum([len(x) for x in all_values if x is not None]) / len(all_values)
 
-    @staticmethod
-    def names():
+    def names(self):
         return 'sum'
 
     def transform(self, value):

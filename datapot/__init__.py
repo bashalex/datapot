@@ -80,15 +80,15 @@ class DataPot:
         decoder = json.JSONDecoder()
         rows = []
 
-        # get all feature names
-        names = self.__all_features_names()
-
         if verbose:
             print('fit transformers...')
         # fit transformers
         self.__fit_transformers(data, verbose)
         if verbose:
             print('fit transformers...OK')
+
+        # get all feature names
+        names = self.__all_features_names()
 
         self.__move_pointer_to_start(data)
         for obj in data:
@@ -260,5 +260,13 @@ class DataPot:
         return len(suitable_transformers) > 0  # at least one transformer was added
 
     def __num_of_new_features(self):
-        return sum([1 if isinstance(t.names(), str) else len(t.names())
-                    for _field, _transformers in self.__fields.items() for t in _transformers])
+        result = 0
+        for _field, _transformers in self.__fields.items():
+            for t in _transformers:
+                if t.names() is None:
+                    return None
+                if isinstance(t.names(), str):
+                    result += 1
+                else:
+                    result += len(t.names)
+        return result

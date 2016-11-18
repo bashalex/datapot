@@ -7,7 +7,8 @@ class TestTimestampTransformer(BaseTransformer):
     Replaces timestamps with date and time
     """
 
-    def requires_fit(self):
+    @staticmethod
+    def requires_fit():
         return True
 
     def __str__(self):
@@ -20,8 +21,7 @@ class TestTimestampTransformer(BaseTransformer):
         super().__init__()
         # here could be some specific parameters for this particular transformer
 
-    @staticmethod
-    def names():
+    def names(self):
         return ['date', 'time']
 
     @staticmethod

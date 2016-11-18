@@ -6,6 +6,7 @@ class TestBoolTransformer(BaseTransformer):
     Replaces 'False' and 'True' with zeros and ones
     """
 
+    @staticmethod
     def requires_fit():
         return False
 
@@ -19,8 +20,7 @@ class TestBoolTransformer(BaseTransformer):
         super().__init__()
         # here could be some specific parameters for this particular transformer
 
-    @staticmethod
-    def names():
+    def names(self):
         return 'binary'
 
     @staticmethod
