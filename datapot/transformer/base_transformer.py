@@ -49,6 +49,7 @@ class BaseTransformer(metaclass=ABCMeta):
         """
         To Override
         :return list of generated features names in the same order as 'transform' method returns them
+                None, if transformer is not fitted yet and do not know how many features it will produce
         """
         pass
 
