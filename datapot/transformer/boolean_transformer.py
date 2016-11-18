@@ -6,7 +6,7 @@ class TestBoolTransformer(BaseTransformer):
     Replaces 'False' and 'True' with zeros and ones
     """
 
-    def requires_fit(self):
+    def requires_fit():
         return False
 
     def __str__(self):
