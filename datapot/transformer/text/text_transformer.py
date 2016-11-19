@@ -19,11 +19,12 @@ class BaseTextTransformer(BaseTransformer):
 
     def __init__(self):
         super().__init__()
-        self._params = {}
         self.language = None
+        self._params = {}
 
     def _detect_language(self, text_feature):
-        iso_code = langdetect.detect(' '.join(text_feature[:10]))
+        # TODO: Remove the iso639 dependency
+        iso_code = langdetect.detect(' '.join(text_feature[:self._detect_number]))
         self.language = iso639.languages.get(alpha2=iso_code).name.lower()
         if self.language not in SnowballStemmer.languages:
             self.language = 'other'
@@ -34,6 +35,7 @@ class BaseTextTransformer(BaseTransformer):
         return isinstance(feature_value, str) and len(feature_value) > 10
 
     def _clean_text(self, text):
+        # TODO: Do something with nltk.stopwords
         text = re.sub(r'[^[^\W\d_]]', ' ', text.lower())
         stopwords_set = set(stopwords.words(self.language))
         stem = (lambda x: x) if self.language == 'other' else SnowballStemmer(self.language).stem
@@ -57,26 +59,29 @@ class TfidfTransformer(BaseTextTransformer):
     def __init__(self):
         super().__init__()
         self.vectorizer = TfidfVectorizer()
+        self._vectorizer_params = {}
+        self._nmf_params = {}
 
-    def names(self):
-        return "Tfidf"
+    @staticmethod
+    def names():
+        # TODO: Change to return None
+        return list(map(str, range(12)))
 
     def _detect_parameters(self, text_feature):
-        self._params = {'max_features': 5000}
-        return self._params
-
-    @property
-    def params(self):
-        return self._params
+        # TODO: Write the parameters autodetection
+        self._detect_number = 10
+        self._detect_language(text_feature)
+        self._vectorizer_params = {'max_features': 5000}
+        self._nmf_params = {'n_components' : 12, 'max_iter' : 200, 'init' : 'nndsvd'}
+        self._nmf_fit_texts_number = 1000
 
     def fit(self, text_feature):
-        self._detect_language(text_feature)
+        self._detect_parameters(text_feature)
         text_feature = self._clean_text_feature(text_feature)
-        self.vectorizer.set_params(**self._detect_parameters(text_feature))
+        self.vectorizer.set_params(**self._vectorizer_params)
         self.vectorizer.fit(text_feature)
         start = time()
-        self.nmf = NMF(n_components=12, max_iter=200, init="nndsvd").fit(
-            self.vectorizer.transform(text_feature)[:1000])
+        self.nmf = NMF(**self._nmf_params).fit(self.vectorizer.transform(text_feature)[:self._nmf_fit_texts_number])
         print(time() - start)
         return self
 

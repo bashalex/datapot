@@ -268,5 +268,5 @@ class DataPot:
                 if isinstance(t.names(), str):
                     result += 1
                 else:
-                    result += len(t.names)
+                    result += len(t.names())
         return result
