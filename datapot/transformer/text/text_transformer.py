@@ -5,14 +5,16 @@ from nltk.stem import SnowballStemmer
 from sklearn.decomposition import NMF
 from time import time
 import re
+import numpy as np
 import iso639
 import langdetect
-
+import gensim
 
 class BaseTextTransformer(BaseTransformer):
     """
     Text transformers basic class.
     """
+
     @staticmethod
     def requires_fit():
         return True
@@ -91,3 +93,38 @@ class TfidfTransformer(BaseTextTransformer):
         else:
             text_feature = self._clean_text_feature(text_feature)
         return self.nmf.transform(self.vectorizer.transform(text_feature)).tolist()[0]
+
+
+class Word2VecTransformer(BaseTextTransformer):
+    """
+    Returns the average Word2Vec vectors for each text
+    """
+
+    def __str__(self):
+        return "Word2VecTransformer"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @staticmethod
+    def names():
+        # TODO: Change to return None
+        return list(map(str, range(300)))
+
+    def _find_word2vec_model(self):
+        self.word2vec_model = gensim.models.Word2Vec.load_word2vec_format('~/GoogleNews-vectors-negative300.bin', binary=True)
+
+    def _detect_parameters(self, text_feature):
+        self._detect_number = 10
+        self._detect_language(text_feature)
+        self._find_word2vec_model()
+
+    def fit(self, text_feature):
+        self._detect_parameters(text_feature)
+        return self
+
+    def transform(self, text_feature):
+        words_list = [self.word2vec_model[word] for word in self._clean_text(text_feature).split()
+                      if word in self.word2vec_model]
+        #print(np.array(words_list).shape)
+        return np.mean(words_list, axis=0)
