@@ -43,7 +43,7 @@ class DataPot:
         else:
             res += '{}\n'.format(self.__num_new_features)
         res += 'features to transform: \n'
-        for x in self.__fields.iteritems():
+        for x in self.__fields.items():
             if len(x[1]) > 0:
                 res += '\t{}\n'.format(x)
         return res
@@ -99,7 +99,7 @@ class DataPot:
         for obj in data:
             obj_fields = decoder.decode(obj)
             row = []
-            for _field, _transformers in self.__fields.iteritems():
+            for _field, _transformers in self.__fields.items():
                 new_features = self.__generate_feature(obj_fields, _field, _transformers)
                 print("new features:", new_features)
                 if isinstance(new_features, list):
@@ -131,7 +131,7 @@ class DataPot:
         :return: list of all feature names after transformation
         """
         result = []
-        for _field, _transformers in self.__fields.iteritems():
+        for _field, _transformers in self.__fields.items():
             if len(_transformers) == 0:
                 result.append(_field)
                 continue
