@@ -12,6 +12,8 @@ import iso639
 import langdetect
 import gensim
 
+NONE_TEXT = "NoneNoneNone"
+
 class BaseTextTransformer(BaseTransformer):
     """
     Text transformers basic class.
@@ -38,10 +40,16 @@ class BaseTextTransformer(BaseTransformer):
 
     def _clean_text(self, text):
         # TODO: Do something with nltk.stopwords
+        if text is None:
+            return NONE_TEXT
         text = re.sub(r'[^[^\W\d_]]', ' ', text.lower())
-        stopwords_set = set(stopwords.words(self.language))
-        stem = (lambda x: x) if self.language == 'other' else SnowballStemmer(self.language).stem
-        return ' '.join(stem(word) for word in text.split() if word not in stopwords_set)
+        self.stopwords_set = set(stopwords.words(self.language))
+        return text
+
+    def _stemming(self, text):
+        self.stem = ((lambda x: x) if self.language == 'other'
+                     else SnowballStemmer(self.language).stem)
+        return ' '.join(self.stem(word) for word in text.split() if word not in self.stopwords_set)
 
     def _clean_text_feature(self, text_feature):
         return [self._clean_text(text) for text in text_feature]
@@ -76,8 +84,9 @@ class TfidfTransformer(BaseTextTransformer):
         self._nmf_fit_texts_number = 1000
 
     def fit(self, text_feature):
-        self._detect_parameters(text_feature)
         text_feature = self._clean_text_feature(text_feature)
+        self._detect_parameters(text_feature)
+        text_feature = [self._stemming(text) for text in text_feature]
         self.vectorizer.set_params(**self._vectorizer_params)
         self.vectorizer.fit(text_feature)
         start = time()
@@ -86,7 +95,7 @@ class TfidfTransformer(BaseTextTransformer):
         return self
 
     def transform(self, text_feature):
-        if isinstance(text_feature, string_types):
+        if text_feature is None or isinstance(text_feature, string_types):
             text_feature = [self._clean_text(text_feature)]
         else:
             text_feature = self._clean_text_feature(text_feature)
