@@ -106,7 +106,6 @@ class DataPot:
             row = []
             for _field, _transformers in self.__fields.items():
                 new_features = self.__generate_feature(obj_fields, _field, _transformers)
-                print("new features:", new_features)
                 if isinstance(new_features, list):
                     row += new_features
                 else:
