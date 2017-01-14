@@ -72,7 +72,7 @@ class TfidfTransformer(BaseTextTransformer):
         self._detect_number = 10
         self._detect_language(text_feature)
         self._vectorizer_params = {'max_features': 5000}
-        self._nmf_params = {'n_components' : 12, 'max_iter' : 200, 'init' : 'nndsvd'}
+        self._nmf_params = {'n_components': 12, 'max_iter': 200, 'init': 'nndsvd'}
         self._nmf_fit_texts_number = 1000
 
     def fit(self, text_feature):

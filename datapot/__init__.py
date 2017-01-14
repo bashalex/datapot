@@ -4,6 +4,7 @@ from future.builtins import (ascii, bytes, chr, dict, filter, hex, input,
                              str, super, zip)
 from six import string_types
 import json
+import bz2
 import datapot.transformer
 import pandas as pd
 import io
@@ -112,9 +113,7 @@ class DataPot:
                     row.append(new_features)
             rows.append(row)
         self.__move_pointer_to_start(data)
-        
-        if verbose:
-            print("rows:", rows)
+
         # save final number of features
         self.__num_new_features = len(rows[0])
 
@@ -127,7 +126,7 @@ class DataPot:
         return df
 
     def __move_pointer_to_start(self, data):
-        if isinstance(data, io.TextIOWrapper):
+        if isinstance(data, io.TextIOWrapper) or isinstance(data, bz2.BZ2File):
             data.seek(0, 0)  # move pointer to the beginning of the file
 
     def __all_features_names(self):
