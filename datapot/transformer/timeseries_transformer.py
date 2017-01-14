@@ -1,8 +1,8 @@
 from .base_transformer import BaseTransformer
-import numpy as np
 from tsfresh.feature_extraction.feature_calculators import \
         binned_entropy, abs_energy, kurtosis, mean_abs_change, mean_autocorrelation, \
         skewness, symmetry_looking, count_above_mean, count_below_mean
+
 
 class TimeSeriesTransformer(BaseTransformer):
 
@@ -11,21 +11,23 @@ class TimeSeriesTransformer(BaseTransformer):
         return False
 
     def __str__(self):
-        return 'TimeSeriesTransfomer...'
+        return 'TimeSeriesTransformer...'
 
     def __repr__(self):
         return self.__str__()
 
     def __init__(self):
-        super().__init__()
+        # here could be some specific parameters for this particular transformer
+        pass
 
     @classmethod
     def _is_numeric(self, obj):
         attrs = ['__add__', '__sub__', '__mul__', '__truediv__', '__pow__']
         return all(hasattr(obj, attr) for attr in attrs)
+
     @classmethod
     def _entropy(self, ts):
-        #simple way to determine stationarity that doesn't work
+        # simple way to determine stationarity that doesn't work
         return 0.1
         """
         def _maxdist(x_i, x_j):
@@ -41,8 +43,8 @@ class TimeSeriesTransformer(BaseTransformer):
         """
 
     def names(self):
-        return ['ts_abs_energy', 'ts_kurtosis', 'ts_mean_abs_change', 'ts_mean_autocorrelation', \
-        'ts_skewness', 'ts_count_above_mean', 'ts_count_below_mean']
+        return ['ts_abs_energy', 'ts_kurtosis', 'ts_mean_abs_change', 'ts_mean_autocorrelation',
+                'ts_skewness', 'ts_count_above_mean', 'ts_count_below_mean']
 
     @staticmethod
     def validate(field, value):
@@ -55,7 +57,7 @@ class TimeSeriesTransformer(BaseTransformer):
             if not TimeSeriesTransformer._is_numeric(val):
                 return False
         if TimeSeriesTransformer._entropy(value) > 0.2:
-            return False #assume series is way too stochastic
+            return False  # assume series is way too stochastic
         return True
 
     def fit(self, all_values):
@@ -64,5 +66,5 @@ class TimeSeriesTransformer(BaseTransformer):
     def transform(self, value):
         if value is None:
             return None
-        return [abs_energy(value), kurtosis(value), mean_abs_change(value), mean_autocorrelation(value), \
-        skewness(value), count_above_mean(value)/len(value), count_below_mean(value)/len(value)]
+        return [abs_energy(value), kurtosis(value), mean_abs_change(value), mean_autocorrelation(value),
+                skewness(value), count_above_mean(value)/len(value), count_below_mean(value)/len(value)]

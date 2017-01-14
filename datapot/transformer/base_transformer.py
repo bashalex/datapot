@@ -1,7 +1,9 @@
+from __future__ import absolute_import, division, print_function
 from abc import ABCMeta, abstractmethod
 
 
-class BaseTransformer(metaclass=ABCMeta):
+class BaseTransformer:
+    __metaclass__ = ABCMeta
 
     @staticmethod
     @abstractmethod

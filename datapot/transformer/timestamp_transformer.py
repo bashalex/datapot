@@ -18,8 +18,8 @@ class TestTimestampTransformer(BaseTransformer):
         return self.__str__()
 
     def __init__(self):
-        super().__init__()
         # here could be some specific parameters for this particular transformer
+        pass
 
     def names(self):
         return ['date', 'time']

@@ -17,7 +17,6 @@ class TestComplexTransformer(BaseTransformer):
         return self.__str__()
 
     def __init__(self):
-        super().__init__()
         self.average_len_of_array = None
 
     @staticmethod
