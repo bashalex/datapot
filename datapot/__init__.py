@@ -66,6 +66,8 @@ class DataPot:
         self.__move_pointer_to_start(data)
         for n, obj in enumerate(data):
             # decode string to dictionary
+            if isinstance(obj, bytes):
+                obj = obj.decode("utf8")
             obj_fields = decoder.decode(obj)
             for name, value in obj_fields.items():
                 self.__parse(name, value)
@@ -97,6 +99,8 @@ class DataPot:
 
         self.__move_pointer_to_start(data)
         for obj in data:
+            if isinstance(obj, bytes):
+                obj = obj.decode("utf8")
             obj_fields = decoder.decode(obj)
             row = []
             for _field, _transformers in self.__fields.items():
@@ -206,6 +210,8 @@ class DataPot:
         decoder = json.JSONDecoder()
         result = []
         for obj in data:
+            if isinstance(obj, bytes):
+                obj = obj.decode("utf8")
             obj_fields = decoder.decode(obj)
             result.append(self.__extract_value(obj_fields, location))
         return result
