@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 from future.builtins import (ascii, bytes, chr, dict, filter, hex, input,
                              int, map, next, oct, open, pow, range, round,
                              str, super, zip)
+from six import string_types
 import json
 import datapot.transformer
 import pandas as pd
@@ -268,11 +269,11 @@ class DataPot:
 
     def __num_of_new_features(self):
         result = 0
-        for _field, _transformers in self.__fields.iteritems():
+        for _field, _transformers in self.__fields.items():
             for t in _transformers:
                 if t.names() is None:
                     return None
-                if isinstance(t.names(), str):
+                if isinstance(t.names(), string_types):
                     result += 1
                 else:
                     result += len(t.names())

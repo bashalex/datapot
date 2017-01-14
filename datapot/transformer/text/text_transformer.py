@@ -4,6 +4,8 @@ from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 from sklearn.decomposition import NMF
 from time import time
+from six import string_types
+from future.builtins import map, range, str
 import re
 import numpy as np
 import iso639
@@ -15,14 +17,12 @@ class BaseTextTransformer(BaseTransformer):
     Text transformers basic class.
     """
 
+    language = None
+    _params = {}
+
     @staticmethod
     def requires_fit():
         return True
-
-    def __init__(self):
-        super().__init__()
-        self.language = None
-        self._params = {}
 
     def _detect_language(self, text_feature):
         # TODO: Remove the iso639 dependency
@@ -34,7 +34,7 @@ class BaseTextTransformer(BaseTransformer):
 
     @staticmethod
     def validate(field, feature_value):
-        return isinstance(feature_value, str) and len(feature_value) > 10
+        return isinstance(feature_value, string_types) and len(feature_value) > 10
 
     def _clean_text(self, text):
         # TODO: Do something with nltk.stopwords
@@ -59,13 +59,11 @@ class TfidfTransformer(BaseTextTransformer):
         return self.__str__()
 
     def __init__(self):
-        super().__init__()
         self.vectorizer = TfidfVectorizer()
         self._vectorizer_params = {}
         self._nmf_params = {}
 
-    @staticmethod
-    def names():
+    def names(self):
         # TODO: Change to return None
         return list(map(str, range(12)))
 
@@ -88,7 +86,7 @@ class TfidfTransformer(BaseTextTransformer):
         return self
 
     def transform(self, text_feature):
-        if isinstance(text_feature, str):
+        if isinstance(text_feature, string_types):
             text_feature = [self._clean_text(text_feature)]
         else:
             text_feature = self._clean_text_feature(text_feature)
@@ -106,8 +104,7 @@ class Word2VecTransformer(BaseTextTransformer):
     def __repr__(self):
         return self.__str__()
 
-    @staticmethod
-    def names():
+    def names(self):
         # TODO: Change to return None
         return list(map(str, range(300)))
 
