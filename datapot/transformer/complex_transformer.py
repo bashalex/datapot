@@ -1,3 +1,4 @@
+from __future__ import division
 from .base_transformer import BaseTransformer
 
 

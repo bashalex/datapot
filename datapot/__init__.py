@@ -1,4 +1,7 @@
 from __future__ import absolute_import, division, print_function
+from future.builtins import (ascii, bytes, chr, dict, filter, hex, input,
+                             int, map, next, oct, open, pow, range, round,
+                             str, super, zip)
 import json
 import datapot.transformer
 import pandas as pd
@@ -39,7 +42,7 @@ class DataPot:
         else:
             res += '{}\n'.format(self.__num_new_features)
         res += 'features to transform: \n'
-        for x in self.__fields.items():
+        for x in self.__fields.iteritems():
             if len(x[1]) > 0:
                 res += '\t{}\n'.format(x)
         return res
@@ -95,15 +98,18 @@ class DataPot:
         for obj in data:
             obj_fields = decoder.decode(obj)
             row = []
-            for _field, _transformers in self.__fields.items():
+            for _field, _transformers in self.__fields.iteritems():
                 new_features = self.__generate_feature(obj_fields, _field, _transformers)
+                print("new features:", new_features)
                 if isinstance(new_features, list):
                     row += new_features
                 else:
                     row.append(new_features)
             rows.append(row)
         self.__move_pointer_to_start(data)
-
+        
+        if verbose:
+            print("rows:", rows)
         # save final number of features
         self.__num_new_features = len(rows[0])
 
@@ -124,7 +130,7 @@ class DataPot:
         :return: list of all feature names after transformation
         """
         result = []
-        for _field, _transformers in self.__fields.items():
+        for _field, _transformers in self.__fields.iteritems():
             if len(_transformers) == 0:
                 result.append(_field)
                 continue
@@ -262,7 +268,7 @@ class DataPot:
 
     def __num_of_new_features(self):
         result = 0
-        for _field, _transformers in self.__fields.items():
+        for _field, _transformers in self.__fields.iteritems():
             for t in _transformers:
                 if t.names() is None:
                     return None
