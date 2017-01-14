@@ -66,5 +66,9 @@ class TimeSeriesTransformer(BaseTransformer):
     def transform(self, value):
         if value is None:
             return None
-        return [abs_energy(value), kurtosis(value), mean_abs_change(value), mean_autocorrelation(value),
-                skewness(value), count_above_mean(value)/len(value), count_below_mean(value)/len(value)]
+        # TODO: remove try-except and validate value in order to avoid exception
+        try:
+            return [abs_energy(value), kurtosis(value), mean_abs_change(value), mean_autocorrelation(value),
+                    skewness(value), count_above_mean(value)/len(value), count_below_mean(value)/len(value)]
+        except:
+            return None
