@@ -24,9 +24,16 @@ class TestTimestampTransformer(BaseTransformer):
     def names(self):
         return ['date', 'time']
 
-    @staticmethod
-    def validate(field, value):
-        return isinstance(value, int) and value > 1000000000
+    def validate(self, field, value):
+        if not isinstance(value, int):
+            self.confidence = max(self.confidence - 0.1, 0)
+            return False
+        if value <= 1000000000:
+            self.confidence = max(self.confidence - 0.1, 0)
+            return False
+
+        self.confidence = min(self.confidence + 0.1, 1)
+        return True
 
     def fit(self, all_values):
         # do nothing

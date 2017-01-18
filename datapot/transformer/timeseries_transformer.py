@@ -46,18 +46,25 @@ class TimeSeriesTransformer(BaseTransformer):
         return ['ts_abs_energy', 'ts_kurtosis', 'ts_mean_abs_change', 'ts_mean_autocorrelation',
                 'ts_skewness', 'ts_count_above_mean', 'ts_count_below_mean']
 
-    @staticmethod
-    def validate(field, value):
+    def validate(self, field, value):
+        # TODO: change logic with confidence
         # check that value is list
         if not isinstance(value, list):
+            self.confidence = max(self.confidence - 0.1, 0)
             return False
+
         if len(value) < 5:
+            self.confidence = max(self.confidence - 0.1, 0)
             return False
+
         for val in value:
             if not TimeSeriesTransformer._is_numeric(val):
+                self.confidence = max(self.confidence - 0.1, 0)
                 return False
+
         if TimeSeriesTransformer._entropy(value) > 0.2:
             return False  # assume series is way too stochastic
+
         return True
 
     def fit(self, all_values):

@@ -5,9 +5,15 @@ from abc import ABCMeta, abstractmethod
 class BaseTransformer:
     __metaclass__ = ABCMeta
 
-    @staticmethod
+    """
+    :param confidence: value from 0 to 1
+                       if confidence = 0 the transformer will be removed
+                       if confidence is less than 0.7 by the end of fitting the transformer will not be used as well
+    """
+    confidence = 0.5
+
     @abstractmethod
-    def validate(field, value):
+    def validate(self, field, value):
         """
         To Override
         :param field: the name of the field

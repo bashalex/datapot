@@ -72,8 +72,18 @@ class DataPot:
             obj_fields = decoder.decode(obj)
             for name, value in obj_fields.items():
                 self.__parse(name, value)
+            # print("fields:", self.__fields, sep="\n")
             if n == limit:
                 break
+
+        for _field, _transformers in self.__fields.items():
+            num = 0
+            while num < len(_transformers):
+                if _transformers[num].confidence < 0.7:
+                    del _transformers[num]
+                else:
+                    num += 1
+
         self.__move_pointer_to_start(data)
         self.__num_new_features = self.__num_of_new_features()
 
@@ -248,22 +258,24 @@ class DataPot:
             _transformers = self.__fields.get(name)
             num = 0
             while num < len(_transformers):
-                if not _transformers[num].validate(name, value):
+                _transformers[num].validate(name, value)
+                if _transformers[num].confidence == 0:
                     del _transformers[num]
                 else:
                     num += 1
+
             if num == 0 and (isinstance(value, list) or isinstance(value, dict)):
                 # remove field at all if it is a complex field (array or json object)
-                # it doesn't work correctly in all cases!
-                # because result depends on order of objects
-                # TODO: change this logic
                 self.__fields.pop(name)
+
             return num > 0  # at least one transformer left in the list
 
         suitable_transformers = []
         for _transformer in self.__transformers:
-            if _transformer.validate(name, value):
-                suitable_transformers.append(_transformer())
+            t = _transformer()
+            t.validate(name, value)
+            if t.confidence > 0.5:
+                suitable_transformers.append(t)
 
         # add field to the set if at least one transformer was added
         if len(suitable_transformers) > 0:

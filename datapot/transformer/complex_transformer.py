@@ -20,21 +20,25 @@ class TestComplexTransformer(BaseTransformer):
     def __init__(self):
         self.average_len_of_array = None
 
-    @staticmethod
-    def validate(field, value):
+    def validate(self, field, value):
         # check that value is list
         if not isinstance(value, list):
+            self.confidence = max(self.confidence - 0.1, 0)
             return False
 
         # ignore fields which name ends with 'xy' or 'log
         # well, just because we can
         if field[-2::] == 'xy' or field[-3::] == 'log':
+            self.confidence = max(self.confidence - 0.1, 0)
             return False
 
         # check that list contains only ints
         for obj in value:
             if not isinstance(obj, int):
+                self.confidence = max(self.confidence - 0.1, 0)
                 return False
+
+        self.confidence = min(self.confidence + 0.1, 1)
         return True
 
     def fit(self, all_values):

@@ -1,4 +1,4 @@
-from ..base_transformer import  BaseTransformer
+from ..base_transformer import BaseTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
@@ -11,6 +11,7 @@ import numpy as np
 import iso639
 import langdetect
 import gensim
+
 
 class BaseTextTransformer(BaseTransformer):
     """
@@ -32,9 +33,19 @@ class BaseTextTransformer(BaseTransformer):
             self.language = 'other'
         print(self.language)
 
-    @staticmethod
-    def validate(field, feature_value):
-        return isinstance(feature_value, string_types) and len(feature_value) > 10
+    def validate(self, field, feature_value):
+
+        # TODO: change this logic, just an example
+        if not isinstance(feature_value, string_types):
+            self.confidence = max(self.confidence - 0.15, 0)
+            return False
+
+        if len(feature_value) <= 10:
+            self.confidence = max(self.confidence - 0.1, 0)
+            return False
+
+        self.confidence = min(self.confidence + 0.1, 1)
+        return True
 
     def _clean_text(self, text):
         # TODO: Do something with nltk.stopwords

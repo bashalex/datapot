@@ -23,9 +23,13 @@ class TestBoolTransformer(BaseTransformer):
     def names(self):
         return 'binary'
 
-    @staticmethod
-    def validate(field, value):
-        return isinstance(value, bool)
+    def validate(self, field, value):
+        if not isinstance(value, bool):
+            self.confidence = max(self.confidence - 0.1, 0)
+            return False
+
+        self.confidence = min(self.confidence + 0.1, 1)
+        return True
 
     def fit(self, all_values):
         # do nothing
