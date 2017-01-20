@@ -4,9 +4,12 @@ from .complex_transformer import TestComplexTransformer
 from .text.text_transformer import TfidfTransformer
 # from .timeseries_transformer import TimeSeriesTransformer
 from .text.text_transformer import Word2VecTransformer
+from .category_transformer import SVDOneHotTransformer
+
 __all__ = [TestBoolTransformer,
            TestTimestampTransformer,
            TestComplexTransformer,
            TfidfTransformer,
+           SVDOneHotTransformer,
            # TimeSeriesTransformer
            ]

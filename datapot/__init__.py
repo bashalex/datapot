@@ -76,6 +76,7 @@ class DataPot:
             if n == limit:
                 break
 
+
         for _field, _transformers in self.__fields.items():
             num = 0
             while num < len(_transformers):
@@ -130,6 +131,7 @@ class DataPot:
             print("num of new features:", self.__num_new_features)
 
         # convert list to DataFrame
+        print(rows[0])
         df = pd.DataFrame(data=rows, columns=names)
 
         return df
