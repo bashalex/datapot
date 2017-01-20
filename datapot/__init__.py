@@ -131,7 +131,6 @@ class DataPot:
             print("num of new features:", self.__num_new_features)
 
         # convert list to DataFrame
-        print(rows[0])
         df = pd.DataFrame(data=rows, columns=names)
 
         return df
