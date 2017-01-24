@@ -1,6 +1,9 @@
 from .base_transformer import BaseTransformer
 from datetime import datetime
 
+from datetime import *
+from dateutil.parser import *
+from time import mktime
 
 class TestTimestampTransformer(BaseTransformer):
     """
@@ -45,3 +48,87 @@ class TestTimestampTransformer(BaseTransformer):
             return [d.date(), d.time()]
         except (OverflowError, OSError):
             return [None, None]
+
+
+class BaseTimestampTransformer(BaseTransformer):
+    """
+    Base class for timestamp transformers
+    """
+
+    def validate(self, field, value):
+        """
+        Check is the value is timestemp
+            If the value is a float or int it can be a unix time form
+            If the value is a string, try to use parse method from dateutil packeg to convert string to datetime
+        :param field: the name of the field
+        :param value: value to check; can be simple object as int, String etc; dict or list
+        :return: boolean, whether the value is suitable for the transformer
+        """
+        try:
+            if isinstance(value, float) or isinstance(value, int):
+                datetime.fromtimestamp(value)
+            if isinstance(value, str):
+                parse(value)
+            self.confidence = min(self.confidence + 0.1, 1)
+            return True
+        except:
+            self.confidence = max(self.confidence - 0.1, 0)
+            return False
+
+# TODO: rename the transformer
+
+class TimestampTransformer(BaseTimestampTransformer):
+    """
+    Replaces most known formats to represent a date and/or time with date, time and other timestamp info (new_features)
+    """
+    @staticmethod
+    def requires_fit():
+        return False
+
+    new_features = ['unixtime', 'week_day', 'month_day', 'hour', 'minute']  # TODO: add features (is_holliday, is_weekend)
+
+    def __str__(self):
+        return 'TimestampTransformer'
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __init__(self, dayfirst=False):
+        # TODO: 1484673907123 type + add user/manual flexability (dayfirst=True), select features form the created set (new_features)
+        self.dayfirst = dayfirst
+
+    def names(self):
+        return ['timestamp_' + feature for feature in self.new_features]
+
+    def fit(self, all_values):
+        """
+        Each value is transformed independently.
+        Fit is not required.
+        """
+        pass
+
+    def transform(self, value):
+        """
+        Each value is transformed to  new_features:
+            ['unixtime', 'week_day', 'month_day', 'hour', 'minute']
+        # TODO: add features (is_holliday, is_weekend)
+        :param value: value to transform
+        :return list of generated values
+        """
+
+        try:
+            if isinstance(value, float) or isinstance(value, int):
+                date = datetime.fromtimestamp(value)
+            if isinstance(value, str):
+                date = parse(value)
+
+            new_features_values = dict()
+            new_features_values['unixtime'] = mktime(date.timetuple())
+            new_features_values['week_day'] = date.today().weekday()
+            new_features_values['month_day'] = date.day
+            new_features_values['hour'] = date.hour
+            new_features_values['minute'] = date.minute
+
+            return [new_features_values[feature] for feature in self.new_features]
+        except:
+            return [None for feature in self.new_features]
