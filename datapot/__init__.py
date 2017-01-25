@@ -6,6 +6,7 @@ from six import string_types
 import json
 import bz2
 import datapot.transformer
+from datapot.transformer.base_transformer import BaseTransformer
 import pandas as pd
 import io
 
@@ -51,6 +52,24 @@ class DataPot:
 
     def __repr__(self):
         return self.__str__()
+
+    def fields(self):
+        return list(self.__fields.keys())
+
+    def add_transformer(self, field_name, transformer):
+        if not isinstance(transformer, BaseTransformer):
+            raise TypeError("second argument must be an instance of transformer")
+        if self.__fields.get(field_name, None) is None:
+            raise KeyError("field with the given name doesn't exist")
+        self.__fields[field_name].append(transformer)
+
+    def remove_transformer(self, field_name, transformer_index):
+        if self.__fields.get(field_name, None) is None:
+            raise KeyError("field with the given name doesn't exist")
+        transformers = self.__fields[field_name]
+        if transformer_index >= len(transformers):
+            raise IndexError("transformer with given index doesn't exist")
+        del transformers[transformer_index]
 
     def fit(self, data, limit=50):
         """
