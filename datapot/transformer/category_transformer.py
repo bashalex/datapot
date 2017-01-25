@@ -4,6 +4,7 @@ import collections
 
 # TODO: change constant's name
 CATEGORICAL_MAX_SIZE = 100
+SVD_COMPONENTS = 10
 
 class BaseCategoricalTransformer(BaseTransformer):
     """
@@ -43,7 +44,7 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
     features = dict()
 
     def __init__(self, dimension_reduction=True):
-        self.dimension_reduction = True
+        self.dimension_reduction = dimension_reduction
 
     def __str__(self):
         return "SVDOneHotTransformer"
@@ -51,15 +52,15 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
     def names(self):
         return ['one_hot' + str(i) for i in range(self._n_components)]
 
-    def fit(self, value):
+    def fit(self, all_values):
         # TODO: what if value is not hashable
         self.features = dict()
         self.apply_dimension_reduction = False
 
 
-        for x in value:
-            if x not in self.features:
-                self.features[x] = len(self.features)
+        for value in all_values:
+            if value not in self.features:
+                self.features[value] = len(self.features)
 
         if len(self.features) <= CATEGORICAL_MAX_SIZE:
             self.one_hot_encoder = sklearn.preprocessing.OneHotEncoder(sparse=False,
@@ -69,9 +70,9 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
             self.apply_dimension_reduction = True
             self.one_hot_encoder = sklearn.preprocessing.OneHotEncoder(sparse=True,
                                                                        handle_unknown='ignore')
-            self._n_components = 10
+            self._n_components = SVD_COMPONENTS
 
-        self.one_hot_encoder.fit([[self.features[x]] for x in value])
+        self.one_hot_encoder.fit([[self.features[value]] for value in all_values])
 
         if self.apply_dimension_reduction:
             self.dim_reducer = sklearn.decomposition.TruncatedSVD(n_components=self._n_components)
