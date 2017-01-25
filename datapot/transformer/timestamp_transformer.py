@@ -3,6 +3,7 @@ from datetime import *
 from dateutil.parser import *
 from time import mktime
 
+
 class BaseTimestampTransformer(BaseTransformer):
     """
     Base class for timestamp transformers
@@ -42,7 +43,6 @@ class BaseTimestampTransformer(BaseTransformer):
 
         return is_valid_value
 
-# TODO: rename the transformer
 
 class TimestampTransformer(BaseTimestampTransformer):
     """
