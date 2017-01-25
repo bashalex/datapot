@@ -8,6 +8,9 @@ class BaseTimestampTransformer(BaseTransformer):
     Base class for timestamp transformers
     """
 
+    num_of_examples = 0.
+    num_of_valid = 0.
+
     def validate(self, field, value):
         """
         Check is the value is timestemp
@@ -17,16 +20,27 @@ class BaseTimestampTransformer(BaseTransformer):
         :param value: value to check; can be simple object as int, String etc; dict or list
         :return: boolean, whether the value is suitable for the transformer
         """
+        is_valid_value = False
+        self.num_of_examples += 1
+
         try:
-            if isinstance(value, float) or isinstance(value, int):
+            # TODO: replace constant
+            # 157766400  is 01 / 01 / 1975 @ 12:00 am(UTC)
+            if (isinstance(value, float) or isinstance(value, int)) and value > 157766400:
                 datetime.fromtimestamp(value)
-            if isinstance(value, str):
+                is_valid_value = True
+                self.num_of_valid += 1
+
+            elif isinstance(value, str):
                 parse(value)
-            self.confidence = min(self.confidence + 0.1, 1)
-            return True
+                is_valid_value = True
+                self.num_of_valid += 1
         except:
-            self.confidence = max(self.confidence - 0.1, 0)
-            return False
+            is_valid_value = False
+
+        self.confidence = self.num_of_valid / self.num_of_examples
+
+        return is_valid_value
 
 # TODO: rename the transformer
 
@@ -59,8 +73,6 @@ class TimestampTransformer(BaseTimestampTransformer):
         Fit is not required.
         """
         pass
-
-
 
 
     def transform(self, value):
