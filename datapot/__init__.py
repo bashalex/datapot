@@ -136,7 +136,7 @@ class DataPot:
         return df
 
     def __move_pointer_to_start(self, data):
-        if isinstance(data, io.TextIOWrapper) or isinstance(data, bz2.BZ2File):
+        if isinstance(data, file) or isinstance(data, io.TextIOWrapper) or isinstance(data, bz2.BZ2File):
             data.seek(0, 0)  # move pointer to the beginning of the file
 
     def __all_features_names(self):
