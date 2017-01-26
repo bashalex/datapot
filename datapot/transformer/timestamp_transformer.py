@@ -2,7 +2,7 @@ from .base_transformer import BaseTransformer
 from datetime import *
 from dateutil.parser import *
 from time import mktime
-
+import time
 
 class BaseTimestampTransformer(BaseTransformer):
     """
@@ -25,9 +25,13 @@ class BaseTimestampTransformer(BaseTransformer):
         self.num_of_examples += 1
 
         try:
-            # TODO: replace constant
-            # 157766400  is 01 / 01 / 1975 @ 12:00 am(UTC)
-            if (isinstance(value, float) or isinstance(value, int)) and value > 157766400:
+            """
+            Set time interval to detect unixtime value
+            Time interval boundaries:
+                low: 01 / 01 / 1975 @ 12:00 am(UTC) === 157766400
+                high: current time + 20 years (01/01/1990 @ 12:00am (UTC) - 01/01/1970 @ 12:00am (UTC)) === time.time() + 631152000
+            """
+            if (isinstance(value, float) or isinstance(value, int)) and value > 157766400 and value < time.time() + 631152000:
                 datetime.fromtimestamp(value)
                 is_valid_value = True
                 self.num_of_valid += 1
