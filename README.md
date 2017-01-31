@@ -1,5 +1,4 @@
-**[Idea](#the-idea)** |
-**[Technical Overview](#technical-overview)** |
+**[Idea and Description](#idea-and-description)** |
 **[Setup](#setup)** |
 **[Authors](#authors)** |
 
@@ -7,7 +6,7 @@
 # Datapot
 
 *Open source tool for machine learning on semi-structured data.
-Datapot creates  from JSON numeric object-feature matrix.*
+Datapot creates numeric object-feature matrix from JSON.*
 
 ---
 
@@ -15,31 +14,28 @@ Datapot creates  from JSON numeric object-feature matrix.*
 
 The idea of Datapot is to make the process of data preparation and feature extraction from semi-structured data for machine learning  automatic, easy and effective.
 
-<img src="dogg.jpg" width="224">
+<img src="data/datapot_feature extraction.png">
 
-We created DataPot that take as an input JSON with fields of object descriptions and extracts different numeric structured feature matrix. 
-New features are extracted using  **[Transformers](#transformers)**. Each of the Transformers detect specific types of field (during the fit() call) and converts the values to new numeric values  (during the fit() call).
+We created DataPot that takes JSON as an input with fields of object descriptions. It generates a numeric structured feature matrix. 
+New features are extracted using  **[Transformers](#transformers)**. Each of the Transformers detects specific types of fields (during the **[fit()](#Transformers)**  call) and converts the values to new numeric features  (during the  **[transform()](#Transformers)**  call).
 
+#### To create a Datapot object simply write the following:
 
 ```bash
-import ../datapot as dp 
+import datapot as dp 
 data = dp.DataPot()
-data
 ```
 
 
-DataPot has two main methods:
+### DataPot has two main methods:
 - fit()
 - transform()
 
+####  fit()
+Method **fit**(self, data, limit) goes through the first  N  objects (N = limit), passes the possible features to Transformers. Each Transformer evaluates if a feature from current field or a number of fields can be created. As a result a dict of features  and Transformers is created.
 
-Method fit(self, data, limit) goes trow the first  N number of objects (N <= limit), pass the possible features to Transformers and evaluates if a feature from current field or a number of fields can be created. As a result a dict of features  and Transformers is created.
-
+To apply fit() to JSON file:
 ```bash
-import ../datapot as dp 
-data = dp.DataPot()
-data
-
 f = open('data/matches_test.jsonlines', 'r')
 data.fit(f, limit=100)
 data
@@ -61,15 +57,19 @@ features to transform:
 ```
 
 
-
-Method transform(self, data, verbose) generates a pandas.DataFrame with new features that ware detected on the fit() call. If parameter verbose is true, progress description is printed during the feature extraction.
+####  transform()
+Method **transform**(self, data, verbose) generates a pandas.DataFrame with new features that were detected on the fit() call. If parameter verbose is true, progress description is printed during the feature extraction.
 
 ```bash
-df = data.transform(f, verbose=True)
-df.head()
+df = data.transform(f, verbose=False)
+```
+Output:
+```bash
+fit transformers...OK
+num of new features: 315
 ```
 
-#### Transformers:
+### Transformers:
  - Boolean Transformer
  - Complex Transformer
  - Timeseries Transformer
@@ -86,7 +86,7 @@ df.head()
     Replaces 'False' and 'True' with zeros and ones
 
  - Complex Transformer 
- Transform array of ints to their sum divided on average length of array in training set
+ Transform array of ints to their sum divided  average length of array in training set
 
  - Timeseries Transformer
 
@@ -111,7 +111,7 @@ More Examples of using Datapot with different datasets and more Transformer spec
 ### Check prerequisites
 
 + Ubuntu 14.04 or older (or OS X)
-+ Python 2.7 or Python 3.4
++ Python 2.7 or later
 
 ###### Required Python Packages:
 - pandas
@@ -129,23 +129,19 @@ More Examples of using Datapot with different datasets and more Transformer spec
 <!--```bash-->
 <!--pip install -U pip setuptools-->
 <!--```-->
-<!--On Windows:-->
-<!--```bash-->
-<!--python -m pip install -U pip setuptools-->
-<!--```-->
 
-To install the required Python Packages:
+
+##### To install the required Python Packages:
 
 ```bash
+$ pip install -U pip setuptools
 $ pip install pandas numpy sklearn iso639 langdetect gensim nltk tsfresh python-dateutil
 ```
 
 
 ## Install Datapot
 
-To install Datapot run
-
-
+To install Datapot run:
 ```bash
 $ git clone https://github.com/bashalex/datapot.git
 $ cd datapot
@@ -164,17 +160,15 @@ $ python setup.py install
 <!--datapot --help-->
 <!--```-->
 
-## Autors
+## Authors
 
 Alex Bash (alexey@etherionlab.com)
 Yuriy Mokriy (yurymokriy@gmail.com)
 Nikita Savelyev (n.a.savelyev@gmail.com) 
 Michal Rozenwald (michal.rozenwald@gmail.com)
 
-Boss: Peter Romov
+**Boss**: Peter Romov
 
 
 ---
 ---
-
-
