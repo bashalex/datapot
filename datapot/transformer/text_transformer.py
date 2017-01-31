@@ -10,7 +10,7 @@ from sklearn.decomposition import NMF
 import numpy as np
 import iso639
 import langdetect
-import gensim.models.Word2Vec as Word2Vec
+import gensim.models.word2vec as Word2Vec
 
 from .base_transformer import BaseTransformer
 
@@ -37,7 +37,9 @@ class BaseTextTransformer(BaseTransformer):
 
         if self.language not in SnowballStemmer.languages:
             self.language = 'other'
-
+            self.stopwords_set = set()
+        else:
+            self.stopwords_set = set(stopwords.words(self.language))
         print(self.language)
 
     def validate(self, field, feature_value):
@@ -59,7 +61,6 @@ class BaseTextTransformer(BaseTransformer):
             return NONE_TEXT
 
         text = re.sub(r'[^[^\W\d_]]', ' ', text.lower())
-        self.stopwords_set = set(stopwords.words(self.language))
         return text
 
     def _stemming(self, text):
@@ -77,7 +78,7 @@ class TfidfTransformer(BaseTextTransformer):
     """Returns NMF transformation of text's Tfidf representation."""
 
     def __str__(self):
-        return "TfidfTransformer"
+        return 'TfidfTransformer'
 
     def __repr__(self):
         return self.__str__()
@@ -89,7 +90,7 @@ class TfidfTransformer(BaseTextTransformer):
 
     def names(self):
         # TODO: Change to return None
-        return list(map(str, range(self._nmf_params['n_components'])))
+        return list(map(str, range(12)))
 
     def _detect_parameters(self, text_feature):
         # TODO: Write the parameters autodetection
@@ -126,7 +127,7 @@ class Word2VecTransformer(BaseTextTransformer):
     """ Returns the average Word2Vec vectors for each text """
 
     def __str__(self):
-        return "Word2VecTransformer"
+        return 'Word2VecTransformer'
 
     def __repr__(self):
         return self.__str__()

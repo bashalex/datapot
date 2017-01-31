@@ -2,13 +2,15 @@ from __future__ import absolute_import, division, print_function
 from future.builtins import (ascii, bytes, chr, dict, filter, hex, input,
                              int, map, next, oct, open, pow, range, round,
                              str, super, zip)
+
 from six import string_types
 import json
 import bz2
-import datapot.transformer
-from datapot.transformer.base_transformer import BaseTransformer
 import pandas as pd
 import io
+
+import datapot.transformer
+from datapot.transformer.base_transformer import BaseTransformer
 
 
 # Check dependencies
@@ -22,7 +24,8 @@ for dependency in dependencies:
         missing_dependencies.append(dependency)
 
 if missing_dependencies:
-    raise ImportError("Missing required dependencies {}".format(missing_dependencies))
+    raise ImportError(("Missing required "
+                       "dependencies {}".format(missing_dependencies)))
 
 
 class DataPot:
@@ -38,7 +41,8 @@ class DataPot:
 
     def __str__(self):
         res = 'DataPot class instance\n'
-        res += ' - number of features without transformation: {}\n'.format(len(self.__fields.keys()))
+        res += (' - number of features without '
+                'transformation: {}\n'.format(len(self.__fields.keys())))
         res += ' - number of new features: '
         if self.__num_new_features is None:
             res += 'Unknown\n'
@@ -58,7 +62,8 @@ class DataPot:
 
     def add_transformer(self, field_name, transformer):
         if not isinstance(transformer, BaseTransformer):
-            raise TypeError("second argument must be an instance of transformer")
+            raise TypeError(("second argument must be "
+                             "an instance of transformer"))
         if self.__fields.get(field_name, None) is None:
             raise KeyError("field with the given name doesn't exist")
         self.__fields[field_name].append(transformer)
@@ -95,7 +100,6 @@ class DataPot:
             if n == limit:
                 break
 
-
         for _field, _transformers in self.__fields.items():
             num = 0
             while num < len(_transformers):
@@ -110,7 +114,8 @@ class DataPot:
     def transform(self, data, verbose=False):
         """
         :param verbose: if true prints progress
-        :important: this method calls both 'fit' and 'transform' methods of transformers
+        :important: this method calls both 'fit'
+                    and 'transform' methods of transformers
         :param data: iterable that contains strings representing Json object
                      OR file where every line contains one Json object
         :return: generated DataFrame
@@ -135,7 +140,8 @@ class DataPot:
             obj_fields = decoder.decode(obj)
             row = []
             for _field, _transformers in self.__fields.items():
-                new_features = self.__generate_feature(obj_fields, _field, _transformers)
+                new_features = self.__generate_feature(obj_fields, _field,
+                                                       _transformers)
                 if isinstance(new_features, list):
                     row += new_features
                 else:
@@ -174,7 +180,8 @@ class DataPot:
             for _transformer in _transformers:
                 suffixes = _transformer.names()
                 if isinstance(suffixes, list):
-                    result += ['{}_{}'.format(_field, suffix) for suffix in suffixes]
+                    result += ['{}_{}'.format(_field, suffix)
+                               for suffix in suffixes]
                 else:
                     result.append('{}_{}'.format(_field, suffixes))
         return result
@@ -237,7 +244,8 @@ class DataPot:
         :param data: iterable that contains strings representing Json object
                      OR file where every line contains one Json object
         :param location: location of the field
-        :return: list of extracted values from the given field from all objects in data
+        :return: list of extracted values from the given field
+                 from all objects in data
         """
         decoder = json.JSONDecoder()
         result = []
@@ -267,7 +275,8 @@ class DataPot:
         else:
             # no one transformer is suitable for the given field
             # but we can add it to the list of fields
-            # in order to leave it in final dataset though without any transformation
+            # in order to leave it in final dataset though
+            # without any transformation
             self.__fields[name] = []
 
     def __ask_transformers(self, name, value):
@@ -275,7 +284,8 @@ class DataPot:
         searching for suitable transformers
         :param name: field name
         :param value: value in the field
-        :return: bool, whether at least one transformer is suitable for the given field
+        :return: bool, whether at least one transformer is suitable
+                 for the given field
         """
         if name in self.__fields.keys():
             # value from the same field was already checked
@@ -288,8 +298,10 @@ class DataPot:
                 else:
                     num += 1
 
-            if num == 0 and (isinstance(value, list) or isinstance(value, dict)):
-                # remove field at all if it is a complex field (array or json object)
+            if (num == 0 and
+               (isinstance(value, list) or isinstance(value, dict))):
+                # remove field at all if it is a complex field
+                # (array or json object)
                 self.__fields.pop(name)
 
             return num > 0  # at least one transformer left in the list

@@ -1,11 +1,14 @@
-import sklearn
 import collections
+
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.decomposition import TruncatedSVD
 
 from .base_transformer import BaseTransformer
 
 # TODO: change constant's name
 CATEGORICAL_MAX_SIZE = 100
 SVD_COMPONENTS = 10
+THRESHOLD = 0.8
 
 
 class BaseCategoricalTransformer(BaseTransformer):
@@ -31,7 +34,7 @@ class BaseCategoricalTransformer(BaseTransformer):
             self.validate_set.add(value)
 
         if (float(self.repeats) /
-           (len(self.validate_set) + self.repeats) >= 0.5):
+           (len(self.validate_set) + self.repeats) >= THRESHOLD):
             self.confidence = 1
         else:
             self.confidence = 0.6
@@ -66,27 +69,23 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
                 self.features[value] = len(self.features)
 
         if len(self.features) <= CATEGORICAL_MAX_SIZE:
-            self.one_hot_encoder = \
-                sklearn.preprocessing.OneHotEncoder(sparse=False,
-                                                    handle_unknown='ignore')
+            self.one_hot_encoder = OneHotEncoder(sparse=False,
+                                                 handle_unknown='ignore')
             self._n_components = len(self.features)
         else:
             self.apply_dimension_reduction = True
-            self.one_hot_encoder = \
-                sklearn.preprocessing.OneHotEncoder(sparse=True,
-                                                    handle_unknown='ignore')
+            self.one_hot_encoder = OneHotEncoder(sparse=True,
+                                                 handle_unknown='ignore')
             self._n_components = SVD_COMPONENTS
 
         self.one_hot_encoder.fit([[self.features[value]]
                                   for value in all_values])
 
         if self.apply_dimension_reduction:
-            self.dim_reducer = \
-                sklearn.decomposition.TruncatedSVD(
-                    n_components=self._n_components)
+            self.dim_reducer = TruncatedSVD(n_components=self._n_components)
             self.dim_reducer.fit(
                 self.one_hot_encoder.transform([[self.features[x]]
-                                                for x in value]))
+                                                for x in all_values]))
 
         return self
 
