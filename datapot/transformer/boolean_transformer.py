@@ -2,9 +2,7 @@ from .base_transformer import BaseTransformer
 
 
 class TestBoolTransformer(BaseTransformer):
-    """
-    Replaces 'False' and 'True' with zeros and ones
-    """
+    """Replaces 'False' and 'True' with zeros and ones"""
 
     @staticmethod
     def requires_fit():
@@ -17,7 +15,8 @@ class TestBoolTransformer(BaseTransformer):
         return self.__str__()
 
     def __init__(self):
-        # here could be some specific parameters for this particular transformer
+        # here could be some specific parameters
+        # for this particular transformer
         pass
 
     def names(self):

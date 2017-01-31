@@ -3,21 +3,26 @@ from abc import ABCMeta, abstractmethod
 
 
 class BaseTransformer:
-    __metaclass__ = ABCMeta
+    """Base transformer's class
 
-    """
     :param confidence: value from 0 to 1
                        if confidence = 0 the transformer will be removed
-                       if confidence is less than 0.7 by the end of fitting the transformer will not be used as well
+                       if confidence is less than 0.7
+                       by the end of fitting the transformer
+                       will not be used as well
     """
+
+    __metaclass__ = ABCMeta
+
     confidence = 0.5
 
     @abstractmethod
     def validate(self, field, value):
-        """
-        To Override
+        """To Override
+
         :param field: the name of the field
-        :param value: value to check; can be simple object as int, String etc; dict or list
+        :param value: value to check; can be simple object as int,
+        String etc; dict or list
         :return: boolean, whether the value is suitable for the transformer
         """
         pass
@@ -25,13 +30,15 @@ class BaseTransformer:
     @staticmethod
     @abstractmethod
     def requires_fit():
-        """
-        To Override
-        This method reduce amount of operations because when we fit out transformer
-        we use list of values from particular field from all objects in training dataset.
+        """To Override
+
+        This method reduce amount of operations because
+        when we fit out transformer we use list of values from particular field
+        from all objects in training dataset.
         And it's a quite slow operation to extract this list of values
 
-        :return: bool, whether transformer requires fitting before transforming
+        :return: bool, whether transformer requires fitting before
+                 transforming
         """
         pass
 
@@ -40,13 +47,13 @@ class BaseTransformer:
         """
         To Override
         :param all_values: list of particular values from every object in data
-        fits itself using given values
+                           fits itself using given values
         """
 
     @abstractmethod
     def transform(self, value):
-        """
-        To Override
+        """ To Override
+
         :param value: value to transform
         :return list of generated values
         """
@@ -54,10 +61,12 @@ class BaseTransformer:
 
     @abstractmethod
     def names(self):
-        """
-        To Override
-        :return list of generated features names in the same order as 'transform' method returns them
-                None, if transformer is not fitted yet and do not know how many features it will produce
+        """ To Override
+
+        :return list of generated features names in the same order
+                as 'transform' method returns them
+                None, if transformer is not fitted yet and
+                do not know how many features it will produce
         """
         pass
 

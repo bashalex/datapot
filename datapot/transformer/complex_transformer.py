@@ -1,10 +1,13 @@
 from __future__ import division
+
 from .base_transformer import BaseTransformer
 
 
 class TestComplexTransformer(BaseTransformer):
-    """
-    Transform array of ints to their sum divided on average length of array in training set
+    """Transform array of ints to normalized sum
+
+    Transform array of ints to their sum
+    divided on average length of array in training set
     """
 
     @staticmethod
@@ -12,7 +15,8 @@ class TestComplexTransformer(BaseTransformer):
         return True
 
     def __str__(self):
-        return 'TestComplexTransformer(average_len_of_array={})'.format(self.average_len_of_array)
+        return ('TestComplexTransformer(average_len_of_array='
+                '{})'.format(self.average_len_of_array))
 
     def __repr__(self):
         return self.__str__()
@@ -44,7 +48,9 @@ class TestComplexTransformer(BaseTransformer):
     def fit(self, all_values):
         # let's count average length of array here
         # actually it doesn't make any sense but who cares
-        self.average_len_of_array = sum([len(x) for x in all_values if x is not None]) / len(all_values)
+        self.average_len_of_array = \
+            (sum([len(x) for x in all_values if x is not None]) /
+             len(all_values))
 
     def names(self):
         return 'sum'

@@ -1,24 +1,27 @@
-from .base_transformer import BaseTransformer
 from datetime import *
-from dateutil.parser import *
 from time import mktime
+
+from dateutil.parser import *
+
+from .base_transformer import BaseTransformer
 
 
 class BaseTimestampTransformer(BaseTransformer):
-    """
-    Base class for timestamp transformers
-    """
+    """Base class for timestamp transformers"""
 
     num_of_examples = 0.
     num_of_valid = 0.
 
     def validate(self, field, value):
-        """
-        Check is the value is timestemp
-            If the value is a float or int it can be a unix time form
-            If the value is a string, try to use parse method from dateutil packeg to convert string to datetime
+        """Check is the value is timestamp
+
+        If the value is a float or int it can be a unix time form
+        If the value is a string, try to use parse method from dateutil package
+        to convert string to datetime
+
         :param field: the name of the field
-        :param value: value to check; can be simple object as int, String etc; dict or list
+        :param value: value to check; can be simple object as int,
+               String etc; dict or list
         :return: boolean, whether the value is suitable for the transformer
         """
         is_valid_value = False
@@ -27,7 +30,8 @@ class BaseTimestampTransformer(BaseTransformer):
         try:
             # TODO: replace constant
             # 157766400  is 01 / 01 / 1975 @ 12:00 am(UTC)
-            if (isinstance(value, float) or isinstance(value, int)) and value > 157766400:
+            if ((isinstance(value, float) or isinstance(value, int)) and
+               value > 157766400):
                 datetime.fromtimestamp(value)
                 is_valid_value = True
                 self.num_of_valid += 1
@@ -45,14 +49,21 @@ class BaseTimestampTransformer(BaseTransformer):
 
 
 class TimestampTransformer(BaseTimestampTransformer):
+    """Timestamp transfomer
+
+    Replaces most known formats to represent a date and/or time with date,
+    time and other timestamp info (new_features)
     """
-    Replaces most known formats to represent a date and/or time with date, time and other timestamp info (new_features)
-    """
+
     @staticmethod
     def requires_fit():
         return False
 
-    new_features = ['unixtime', 'week_day', 'month_day', 'hour', 'minute']  # TODO: add features (is_holliday, is_weekend)
+    new_features = ['unixtime',
+                    'week_day',
+                    'month_day',
+                    'hour',
+                    'minute']  # TODO: add features (is_holliday, is_weekend)
 
     def __str__(self):
         return 'TimestampTransformer'
@@ -68,17 +79,19 @@ class TimestampTransformer(BaseTimestampTransformer):
         return ['timestamp_' + feature for feature in self.new_features]
 
     def fit(self, all_values):
-        """
+        """Fit transformer
+
         Each value is transformed independently.
         Fit is not required.
         """
         pass
 
-
     def transform(self, value):
-        """
-        Each value is transformed to  new_features:
-            ['unixtime', 'week_day', 'month_day', 'hour', 'minute']
+        """Each value is transformed to new time features
+
+        Each value is transformed to new_features:
+        ['unixtime', 'week_day', 'month_day', 'hour', 'minute']
+
         # TODO: add features (is_holliday, is_weekend)
         :param value: value to transform
         :return list of generated values
@@ -97,15 +110,14 @@ class TimestampTransformer(BaseTimestampTransformer):
             new_features_values['hour'] = date.hour
             new_features_values['minute'] = date.minute
 
-            return [new_features_values[feature] for feature in self.new_features]
+            return [new_features_values[feature]
+                    for feature in self.new_features]
         except:
             return [None for feature in self.new_features]
 
 
 class TestTimestampTransformer(BaseTransformer):
-    """
-    Replaces timestamps with date and time
-    """
+    """Replaces timestamps with date and time"""
 
     @staticmethod
     def requires_fit():
@@ -118,7 +130,8 @@ class TestTimestampTransformer(BaseTransformer):
         return self.__str__()
 
     def __init__(self):
-        # here could be some specific parameters for this particular transformer
+        # here could be some specific parameters
+        # for this particular transformer
         pass
 
     def names(self):
@@ -145,4 +158,3 @@ class TestTimestampTransformer(BaseTransformer):
             return [d.date(), d.time()]
         except (OverflowError, OSError):
             return [None, None]
-
