@@ -2,6 +2,9 @@ from __future__ import division
 
 from .base_transformer import BaseTransformer
 
+CONFIDENCE_PENALTY = 0.1
+CONFIDENCE_REWARD = 0.1
+
 
 class TestComplexTransformer(BaseTransformer):
     """Transform array of ints to normalized sum
@@ -26,22 +29,22 @@ class TestComplexTransformer(BaseTransformer):
     def validate(self, field, value):
         # check that value is list
         if not isinstance(value, list):
-            self.confidence = max(self.confidence - 0.1, 0)
+            self.confidence = max(self.confidence - CONFIDENCE_PENALTY, 0)
             return False
 
         # ignore fields which name ends with 'xy' or 'log
         # well, just because we can
         if field[-2::] == 'xy' or field[-3::] == 'log':
-            self.confidence = max(self.confidence - 0.1, 0)
+            self.confidence = max(self.confidence - CONFIDENCE_PENALTY, 0)
             return False
 
         # check that list contains only ints
         for obj in value:
             if not isinstance(obj, int):
-                self.confidence = max(self.confidence - 0.1, 0)
+                self.confidence = max(self.confidence - CONFIDENCE_PENALTY, 0)
                 return False
 
-        self.confidence = min(self.confidence + 0.1, 1)
+        self.confidence = min(self.confidence + CONFIDENCE_REWARD, 1)
         return True
 
     def fit(self, all_values):

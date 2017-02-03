@@ -8,6 +8,8 @@ from .base_transformer import BaseTransformer
 
 YEAR_1975 = 157766400
 TWENTY_YEARS = 631152000
+CONFIDENCE_PENALTY = 0.1
+CONFIDENCE_REWARD = 0.1
 
 
 class BaseTimestampTransformer(BaseTransformer):
@@ -126,6 +128,7 @@ class TimestampTransformer(BaseTimestampTransformer):
             return [None for feature in self.new_features]
 
 
+'''
 class TestTimestampTransformer(BaseTransformer):
     """Replaces timestamps with date and time"""
 
@@ -168,3 +171,4 @@ class TestTimestampTransformer(BaseTransformer):
             return [d.date(), d.time()]
         except (OverflowError, OSError):
             return [None, None]
+'''

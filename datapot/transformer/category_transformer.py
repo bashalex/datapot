@@ -9,6 +9,8 @@ from .base_transformer import BaseTransformer
 CATEGORICAL_FEATURES_MAX_NUMBER = 100
 SVD_COMPONENTS = 10
 REPEATS_RATE_TO_CHOOSE_THRESHOLD = 0.8
+CONFIDENT = 1
+NONCONFIDENT = 0.6
 
 
 class BaseCategoricalTransformer(BaseTransformer):
@@ -36,9 +38,9 @@ class BaseCategoricalTransformer(BaseTransformer):
         repeats_rate = float(self.repeats) / (len(self.validate_set) + self.repeats)
 
         if repeats_rate >= REPEATS_RATE_TO_CHOOSE_THRESHOLD:
-            self.confidence = 1
+            self.confidence = CONFIDENT
         else:
-            self.confidence = 0.6
+            self.confidence = NONCONFIDENT
 
 
 class SVDOneHotTransformer(BaseCategoricalTransformer):
@@ -49,7 +51,7 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
     """
 
     def __init__(self, dimension_reduction=True):
-        super().__init__()
+        super(SVDOneHotTransformer, self).__init__()
         self.apply_dimension_reduction = False
         self.features = dict()
         self.dimension_reduction = dimension_reduction

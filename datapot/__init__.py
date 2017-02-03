@@ -26,8 +26,11 @@ from future.builtins import (
     zip
 )
 
-import datapot.transformer
-from datapot.transformer.base_transformer import BaseTransformer
+from . import transformer
+from .transformer.base_transformer import BaseTransformer
+
+CONFIDENCE_LEVEL_TO_ACCEPT = 0.7
+CONFIDENCE_LEVEL_TO_BEGIN = 0.5
 
 
 class DataPot:
@@ -92,7 +95,7 @@ class DataPot:
         decoder = json.JSONDecoder()
 
         self.__move_pointer_to_start(data)
-        for n, obj in enumerate(data):
+        for iteration, obj in enumerate(data):
             # decode string to dictionary
             if isinstance(obj, bytes):
                 obj = obj.decode('utf8')
@@ -100,16 +103,16 @@ class DataPot:
             for name, value in obj_fields.items():
                 self.__parse(name, value)
             # print("fields:", self.__fields, sep="\n")
-            if n == limit:
+            if iteration == limit:
                 break
 
         for _field, _transformers in self.__fields.items():
-            num = 0
-            while num < len(_transformers):
-                if _transformers[num].confidence < 0.7:
-                    del _transformers[num]
+            accepted_transformers_number = 0
+            while accepted_transformers_number < len(_transformers):
+                if _transformers[accepted_transformers_number].confidence < CONFIDENCE_LEVEL_TO_ACCEPT:
+                    del _transformers[accepted_transformers_number]
                 else:
-                    num += 1
+                    accepted_transformers_number += 1
 
         self.__move_pointer_to_start(data)
         self.__num_new_features = self.__num_of_new_features()
@@ -310,7 +313,7 @@ class DataPot:
         for _transformer in self.__transformers:
             t = _transformer()
             t.validate(name, value)
-            if t.confidence > 0.5:
+            if t.confidence > CONFIDENCE_LEVEL_TO_BEGIN:
                 suitable_transformers.append(t)
 
         # add field to the set if at least one transformer was added

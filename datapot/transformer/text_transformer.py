@@ -21,6 +21,10 @@ N_COMPONENTS = 12
 LANGUAGE_DETECTION_EXAMPLES = 10
 NORMAL_TEXT_MIN_SIZE = 10
 NMF_FIT_NUMBER = 1000
+NON_STRING_PENALTY = 0.15
+SMALL_STRING_LENGHT_PENALTY = 0.1
+STRING_IS_TEXT_REWARD = 0.1
+NMF_ITERS = 12
 
 
 class BaseTextTransformer(BaseTransformer):
@@ -51,14 +55,14 @@ class BaseTextTransformer(BaseTransformer):
     def validate(self, field, feature_value):
         # TODO: change this logic, just an example
         if not isinstance(feature_value, string_types):
-            self.confidence = max(self.confidence - 0.15, 0)
+            self.confidence = max(self.confidence - NON_STRING_PENALTY, 0)
             return False
 
         if len(feature_value) <= 10:
-            self.confidence = max(self.confidence - 0.1, 0)
+            self.confidence = max(self.confidence - SMALL_STRING_LENGHT_PENALTY, 0)
             return False
 
-        self.confidence = min(self.confidence + 0.1, 1)
+        self.confidence = min(self.confidence + STRING_IS_TEXT_REWARD, 1)
         return True
 
     def _clean_text(self, text):
@@ -88,6 +92,7 @@ class TfidfTransformer(BaseTextTransformer):
         return self.__str__()
 
     def __init__(self):
+        super(TfidfTransformer, self).__init__()
         self.vectorizer = TfidfVectorizer()
         self._vectorizer_params = {}
         self._nmf_params = {}

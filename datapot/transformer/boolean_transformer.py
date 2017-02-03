@@ -1,5 +1,8 @@
 from .base_transformer import BaseTransformer
 
+CONFIDENCE_PENALTY = 0.1
+CONFIDENCE_REWARD = 0.1
+
 
 class TestBoolTransformer(BaseTransformer):
     """Replaces 'False' and 'True' with zeros and ones"""
@@ -24,10 +27,10 @@ class TestBoolTransformer(BaseTransformer):
 
     def validate(self, field, value):
         if not isinstance(value, bool):
-            self.confidence = max(self.confidence - 0.1, 0)
+            self.confidence = max(self.confidence - CONFIDENCE_PENALTY, 0)
             return False
 
-        self.confidence = min(self.confidence + 0.1, 1)
+        self.confidence = min(self.confidence + CONFIDENCE_REWARD, 1)
         return True
 
     def fit(self, all_values):

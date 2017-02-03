@@ -12,6 +12,10 @@ from tsfresh.feature_extraction.feature_calculators import (
 
 from .base_transformer import BaseTransformer
 
+TIME_SERIES_MIN_LENGTH = 5
+CONFIDENCE_PENALTY = 0.1
+MAX_ENTROPY = 0.2
+
 
 class TimeSeriesTransformer(BaseTransformer):
 
@@ -75,19 +79,19 @@ class TimeSeriesTransformer(BaseTransformer):
         # TODO: change logic with confidence
         # check that value is list
         if not isinstance(value, list):
-            self.confidence = max(self.confidence - 0.1, 0)
+            self.confidence = max(self.confidence - CONFIDENCE_PENALTY, 0)
             return False
 
         if len(value) < 5:
-            self.confidence = max(self.confidence - 0.1, 0)
+            self.confidence = max(self.confidence - CONFIDENCE_PENALTY, 0)
             return False
 
         for val in value:
             if not TimeSeriesTransformer._is_numeric(val):
-                self.confidence = max(self.confidence - 0.1, 0)
+                self.confidence = max(self.confidence - CONFIDENCE_PENALTY, 0)
                 return False
 
-        if TimeSeriesTransformer._entropy(value) > 0.2:
+        if TimeSeriesTransformer._entropy(value) > MAX_ENTROPY:
             return False  # assume series is way too stochastic
 
         return True
