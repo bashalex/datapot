@@ -1,25 +1,32 @@
-from future.builtins import map, range, str
-
 import re
-from six import string_types
 
-from sklearn.feature_extraction.text import TfidfVectorizer
-from nltk.corpus import stopwords
-from nltk.stem import SnowballStemmer
-from sklearn.decomposition import NMF
-import numpy as np
+import gensim.models.word2vec as Word2Vec
 import iso639
 import langdetect
-import gensim.models.word2vec as Word2Vec
+import numpy as np
+from future.builtins import map, range, str
+from nltk.corpus import stopwords
+from nltk.stem import SnowballStemmer
+from six import string_types
+from sklearn.decomposition import NMF
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 from .base_transformer import BaseTransformer
 
 NONE_TEXT = 'NoneNoneNone'
 WORD_2_VEC_DIR = '~/GoogleNews-vectors-negative300.bin'
+WORD_2_VEC_SIZE = 300
+MAX_DICTIONARY_SIZE = 5000
+N_COMPONENTS = 12
+LANGUAGE_DETECTION_EXAMPLES = 10
+NORMAL_TEXT_MIN_SIZE = 10
+NMF_FIT_NUMBER = 1000
 
 
 class BaseTextTransformer(BaseTransformer):
     """Text transformers basic class."""
+
+    alpha_numeric_regexp = re.compile(r'[^[^\W\d_]]')
 
     def __init__(self):
         self.language = None
@@ -31,8 +38,7 @@ class BaseTextTransformer(BaseTransformer):
 
     def _detect_language(self, text_feature):
         # TODO: Remove the iso639 dependency
-        iso_code = \
-            langdetect.detect(' '.join(text_feature[:self._detect_number]))
+        iso_code = langdetect.detect(' '.join(text_feature[:self._detect_number]))
         self.language = iso639.languages.get(alpha2=iso_code).name.lower()
 
         if self.language not in SnowballStemmer.languages:
@@ -60,15 +66,13 @@ class BaseTextTransformer(BaseTransformer):
         if text is None:
             return NONE_TEXT
 
-        text = re.sub(r'[^[^\W\d_]]', ' ', text.lower())
+        text = self.alpha_numeric_regexp.sub(' ', text.lower())
         return text
 
     def _stemming(self, text):
-        self.stem = ((lambda x: x) if self.language == 'other'
-                     else SnowballStemmer(self.language).stem)
+        self.stem = (lambda x: x) if self.language == 'other' else SnowballStemmer(self.language).stem
 
-        return ' '.join(self.stem(word) for word in text.split()
-                        if word not in self.stopwords_set)
+        return ' '.join(self.stem(word) for word in text.split() if word not in self.stopwords_set)
 
     def _clean_text_feature(self, text_feature):
         return [self._clean_text(text) for text in text_feature]
@@ -90,17 +94,21 @@ class TfidfTransformer(BaseTextTransformer):
 
     def names(self):
         # TODO: Change to return None
-        return list(map(str, range(12)))
+        return list(map(str, range(N_COMPONENTS)))
 
     def _detect_parameters(self, text_feature):
         # TODO: Write the parameters autodetection
-        self._detect_number = 10
+        self._detect_number = LANGUAGE_DETECTION_EXAMPLES
         self._detect_language(text_feature)
-        self._vectorizer_params = {'max_features': 5000}
-        self._nmf_params = {'n_components': 12,
-                            'max_iter': 200,
-                            'init': 'nndsvd'}
-        self._nmf_fit_number = 1000
+        self._vectorizer_params = {
+            'max_features': MAX_DICTIONARY_SIZE
+        }
+        self._nmf_params = {
+            'n_components': N_COMPONENTS,
+            'max_iter': 200,
+            'init': 'nndsvd'
+        }
+        self._nmf_fit_number = NMF_FIT_NUMBER
 
     def fit(self, text_feature):
         text_feature = self._clean_text_feature(text_feature)
@@ -108,8 +116,7 @@ class TfidfTransformer(BaseTextTransformer):
         text_feature = [self._stemming(text) for text in text_feature]
         self.vectorizer.set_params(**self._vectorizer_params)
         self.vectorizer.fit(text_feature)
-        data_to_nmf_fit = \
-            self.vectorizer.transform(text_feature[:self._nmf_fit_number])
+        data_to_nmf_fit = self.vectorizer.transform(text_feature[:self._nmf_fit_number])
         self.nmf = NMF(**self._nmf_params).fit(data_to_nmf_fit)
         return self
 
@@ -134,14 +141,13 @@ class Word2VecTransformer(BaseTextTransformer):
 
     def names(self):
         # TODO: Change to return None
-        return list(map(str, range(300)))
+        return list(map(str, range(WORD_2_VEC_SIZE)))
 
     def _find_word2vec_model(self):
-        self.word2vec_model = \
-            Word2Vec.load_word2vec_format(WORD_2_VEC_DIR, binary=True)
+        self.word2vec_model = Word2Vec.load_word2vec_format(WORD_2_VEC_DIR, binary=True)
 
     def _detect_parameters(self, text_feature):
-        self._detect_number = 10
+        self._detect_number = LANGUAGE_DETECTION_EXAMPLES
         self._detect_language(text_feature)
         self._find_word2vec_model()
 
@@ -150,7 +156,6 @@ class Word2VecTransformer(BaseTextTransformer):
         return self
 
     def transform(self, text_feature):
-        words_list = [self.word2vec_model[word]
-                      for word in self._clean_text(text_feature).split()
-                      if word in self.word2vec_model]
+        all_words = self._clean_text(text_feature).split()
+        words_list = [self.word2vec_model[word] for word in all_words if word in self.word2vec_model]
         return np.mean(words_list, axis=0)

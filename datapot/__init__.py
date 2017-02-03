@@ -1,31 +1,33 @@
 from __future__ import absolute_import, division, print_function
-from future.builtins import (ascii, bytes, chr, dict, filter, hex, input,
-                             int, map, next, oct, open, pow, range, round,
-                             str, super, zip)
 
-from six import string_types
-import json
 import bz2
-import pandas as pd
 import io
+import json
+import pandas as pd
+from six import string_types
+from future.builtins import (
+    ascii,
+    bytes,
+    chr,
+    dict,
+    filter,
+    hex,
+    input,
+    int,
+    map,
+    next,
+    oct,
+    open,
+    pow,
+    range,
+    round,
+    str,
+    super,
+    zip
+)
 
 import datapot.transformer
 from datapot.transformer.base_transformer import BaseTransformer
-
-
-# Check dependencies
-dependencies = ('pandas', 'numpy')
-missing_dependencies = []
-
-for dependency in dependencies:
-    try:
-        __import__(dependency)
-    except ImportError as e:
-        missing_dependencies.append(dependency)
-
-if missing_dependencies:
-    raise ImportError(("Missing required "
-                       "dependencies {}".format(missing_dependencies)))
 
 
 class DataPot:
@@ -40,15 +42,17 @@ class DataPot:
         self.__num_new_features = None
 
     def __str__(self):
-        res = 'DataPot class instance\n'
-        res += (' - number of features without '
-                'transformation: {}\n'.format(len(self.__fields.keys())))
-        res += ' - number of new features: '
-        if self.__num_new_features is None:
-            res += 'Unknown\n'
-        else:
-            res += '{}\n'.format(self.__num_new_features)
-        res += 'features to transform: \n'
+        res = (
+            'DataPot class instance\n'
+            ' - number of features without transformation: {0}\n'
+            ' - number of new features: '
+            '{1}\n'
+            'features to transform: \n'
+        ).format(
+            len(self.__fields.keys()),
+            'Unknown' if self.__num_new_features is None else self.__num_new_features
+        )
+
         for x in self.__fields.items():
             if len(x[1]) > 0:
                 res += '\t{}\n'.format(x)
@@ -62,18 +66,17 @@ class DataPot:
 
     def add_transformer(self, field_name, transformer):
         if not isinstance(transformer, BaseTransformer):
-            raise TypeError(("second argument must be "
-                             "an instance of transformer"))
-        if self.__fields.get(field_name, None) is None:
-            raise KeyError("field with the given name doesn't exist")
+            raise TypeError('second argument must be an instance of transformer')
+        if field_name not in self.__fields:
+            raise KeyError('field with the given name doesn\'t exist')
         self.__fields[field_name].append(transformer)
 
     def remove_transformer(self, field_name, transformer_index):
-        if self.__fields.get(field_name, None) is None:
-            raise KeyError("field with the given name doesn't exist")
+        if field_name not in self.__fields:
+            raise KeyError('field with the given name doesn\'t exist')
         transformers = self.__fields[field_name]
         if transformer_index >= len(transformers):
-            raise IndexError("transformer with given index doesn't exist")
+            raise IndexError('transformer with given index doesn\'t exist')
         del transformers[transformer_index]
 
     def fit(self, data, limit=50):
@@ -92,7 +95,7 @@ class DataPot:
         for n, obj in enumerate(data):
             # decode string to dictionary
             if isinstance(obj, bytes):
-                obj = obj.decode("utf8")
+                obj = obj.decode('utf8')
             obj_fields = decoder.decode(obj)
             for name, value in obj_fields.items():
                 self.__parse(name, value)
@@ -136,12 +139,11 @@ class DataPot:
         self.__move_pointer_to_start(data)
         for obj in data:
             if isinstance(obj, bytes):
-                obj = obj.decode("utf8")
+                obj = obj.decode('utf8')
             obj_fields = decoder.decode(obj)
             row = []
             for _field, _transformers in self.__fields.items():
-                new_features = self.__generate_feature(obj_fields, _field,
-                                                       _transformers)
+                new_features = self.__generate_feature(obj_fields, _field, _transformers)
                 if isinstance(new_features, list):
                     row += new_features
                 else:
@@ -153,7 +155,7 @@ class DataPot:
         self.__num_new_features = len(rows[0])
 
         if verbose:
-            print("num of new features:", self.__num_new_features)
+            print('num of new features:', self.__num_new_features)
 
         # convert list to DataFrame
         df = pd.DataFrame(data=rows, columns=names)
@@ -180,8 +182,7 @@ class DataPot:
             for _transformer in _transformers:
                 suffixes = _transformer.names()
                 if isinstance(suffixes, list):
-                    result += ['{}_{}'.format(_field, suffix)
-                               for suffix in suffixes]
+                    result += ['{}_{}'.format(_field, suffix) for suffix in suffixes]
                 else:
                     result.append('{}_{}'.format(_field, suffixes))
         return result
@@ -195,7 +196,7 @@ class DataPot:
             if len(x[1]) == 0:
                 continue
             if verbose:
-                print("fit: {}".format(x))
+                print('fit: {}'.format(x))
             values = None
             for i in range(len(x[1])):
                 if not x[1][i].requires_fit():
@@ -251,7 +252,7 @@ class DataPot:
         result = []
         for obj in data:
             if isinstance(obj, bytes):
-                obj = obj.decode("utf8")
+                obj = obj.decode('utf8')
             obj_fields = decoder.decode(obj)
             result.append(self.__extract_value(obj_fields, location))
         return result
@@ -298,11 +299,10 @@ class DataPot:
                 else:
                     num += 1
 
-            if (num == 0 and
-               (isinstance(value, list) or isinstance(value, dict))):
+            if num == 0 and isinstance(value, (list, dict)):
                 # remove field at all if it is a complex field
                 # (array or json object)
-                self.__fields.pop(name)
+                del self.__fields[name]
 
             return num > 0  # at least one transformer left in the list
 

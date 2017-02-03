@@ -1,10 +1,13 @@
+import time
 from datetime import *
 from time import mktime
-import time
 
 from dateutil.parser import *
 
 from .base_transformer import BaseTransformer
+
+YEAR_1975 = 157766400
+TWENTY_YEARS = 631152000
 
 
 class BaseTimestampTransformer(BaseTransformer):
@@ -36,8 +39,7 @@ class BaseTimestampTransformer(BaseTransformer):
                 high: current time + 20 years (01/01/1990 @ 12:00am (UTC) -
                 01/01/1970 @ 12:00am (UTC)) === time.time() + 631152000
             """
-            if ((isinstance(value, float) or isinstance(value, int)) and
-               157766400 < value < time.time() + 631152000):
+            if isinstance(value, [float, int]) and YEAR_1975 < value < time.time() + TWENTY_YEARS:
                 datetime.fromtimestamp(value)
                 is_valid_value = True
                 self.num_of_valid += 1
@@ -65,11 +67,13 @@ class TimestampTransformer(BaseTimestampTransformer):
     def requires_fit():
         return False
 
-    new_features = ['unixtime',
-                    'week_day',
-                    'month_day',
-                    'hour',
-                    'minute']  # TODO: add features (is_holliday, is_weekend)
+    new_features = [
+        'unixtime',
+        'week_day',
+        'month_day',
+        'hour',
+        'minute'
+    ]  # TODO: add features (is_holliday, is_weekend)
 
     def __str__(self):
         return 'TimestampTransformer'
@@ -109,15 +113,15 @@ class TimestampTransformer(BaseTimestampTransformer):
             if isinstance(value, str):
                 date = parse(value)
 
-            new_features_values = dict()
-            new_features_values['unixtime'] = mktime(date.timetuple())
-            new_features_values['week_day'] = date.today().weekday()
-            new_features_values['month_day'] = date.day
-            new_features_values['hour'] = date.hour
-            new_features_values['minute'] = date.minute
+            new_features_values = {
+                'unixtime': mktime(date.timetuple()),
+                'week_day': date.today().weekday(),
+                'month_day': date.day,
+                'hour': date.hour,
+                'minute': date.minute
+            }
 
-            return [new_features_values[feature]
-                    for feature in self.new_features]
+            return [new_features_values[feature] for feature in self.new_features]
         except:
             return [None for feature in self.new_features]
 

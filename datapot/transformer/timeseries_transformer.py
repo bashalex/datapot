@@ -1,7 +1,14 @@
-from tsfresh.feature_extraction.feature_calculators import \
-        binned_entropy, abs_energy, kurtosis, mean_abs_change, \
-        mean_autocorrelation, skewness, symmetry_looking, \
-        count_above_mean, count_below_mean
+from tsfresh.feature_extraction.feature_calculators import (
+    abs_energy,
+    binned_entropy,
+    count_above_mean,
+    count_below_mean,
+    kurtosis,
+    mean_abs_change,
+    mean_autocorrelation,
+    skewness,
+    symmetry_looking
+)
 
 from .base_transformer import BaseTransformer
 
@@ -25,7 +32,13 @@ class TimeSeriesTransformer(BaseTransformer):
 
     @classmethod
     def _is_numeric(self, obj):
-        attrs = ['__add__', '__sub__', '__mul__', '__truediv__', '__pow__']
+        attrs = [
+            '__add__',
+            '__sub__',
+            '__mul__',
+            '__truediv__',
+            '__pow__'
+        ]
         return all(hasattr(obj, attr) for attr in attrs)
 
     @classmethod
@@ -48,13 +61,15 @@ class TimeSeriesTransformer(BaseTransformer):
         """
 
     def names(self):
-        return ['ts_abs_energy',
-                'ts_kurtosis',
-                'ts_mean_abs_change',
-                'ts_mean_autocorrelation',
-                'ts_skewness',
-                'ts_count_above_mean',
-                'ts_count_below_mean']
+        return [
+            'ts_abs_energy',
+            'ts_kurtosis',
+            'ts_mean_abs_change',
+            'ts_mean_autocorrelation',
+            'ts_skewness',
+            'ts_count_above_mean',
+            'ts_count_below_mean'
+        ]
 
     def validate(self, field, value):
         # TODO: change logic with confidence
@@ -85,12 +100,14 @@ class TimeSeriesTransformer(BaseTransformer):
             return None
         # TODO: remove try-except and validate value in order to avoid exception
         try:
-            return [abs_energy(value),
-                    kurtosis(value),
-                    mean_abs_change(value),
-                    mean_autocorrelation(value),
-                    skewness(value),
-                    count_above_mean(value)/len(value),
-                    count_below_mean(value)/len(value)]
+            return [
+                abs_energy(value),
+                kurtosis(value),
+                mean_abs_change(value),
+                mean_autocorrelation(value),
+                skewness(value),
+                count_above_mean(value)/len(value),
+                count_below_mean(value)/len(value)
+            ]
         except:
             return None
