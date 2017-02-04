@@ -11,9 +11,10 @@ class BaseCategoricalTransformer(BaseTransformer):
     Base class for categorical transformers
     """
 
-    validate_set = set()
-    repeats = 0
-    _n_components = 0
+    def __init__(self):
+        self.validate_set = set()
+        self.repeats = 0
+        self._n_components = 0
 
     @staticmethod
     def requires_fit():
@@ -40,11 +41,9 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
     One-hot encoding with dimension reduction (SVD) in case there are too many features .
     """
 
-    apply_dimension_reduction = False
-    features = dict()
-
     def __init__(self, dimension_reduction=True):
-        self.dimension_reduction = dimension_reduction
+        BaseCategoricalTransformer.__init__(self)
+        self.apply_dimension_reduction = dimension_reduction
 
     def __str__(self):
         return "SVDOneHotTransformer"
