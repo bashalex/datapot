@@ -14,20 +14,24 @@ import bz2
 from sklearn.model_selection import cross_val_score
 import xgboost as xgb
 
-fetch_imdb()
-data = bz2.BZ2File('data/imdb.jsonlines.bz2')
-datapot = dp.DataPot()
-start = time()
-datapot.fit(data)
-print('fit time:', time()-start)
-start = time()
-df = datapot.transform(data, verbose=True)
-print('transform time:', time()-start)
+if __name__ == "__main__":
+    main()
 
-X = df.drop(['sentiment', 'id'], axis=1)
-y = df['sentiment']
-model = xgb.XGBClassifier()
-print('Cross-val score:', cross_val_score(model, X, y, cv=5))
-model.fit(X, y)
-print('Feature importance:')
-print(list(zip(X.columns, model.feature_importances_)))
+def main():
+    fetch_imdb()
+    data = bz2.BZ2File('data/imdb.jsonlines.bz2')
+    datapot = dp.DataPot()
+    start = time()
+    datapot.fit(data)
+    print('fit time:', time()-start)
+    start = time()
+    df = datapot.transform(data, verbose=True)
+    print('transform time:', time()-start)
+    X = df.drop(['sentiment', 'id'], axis=1)
+    y = df['sentiment']
+    model = xgb.XGBClassifier()
+    print('Cross-val score:', cross_val_score(model, X, y, cv=5))
+    model.fit(X, y)
+    print('Feature importance:')
+    print(list(zip(X.columns, model.feature_importances_)))
+    return 0
