@@ -5,7 +5,7 @@
 **[Authors](#authors)** 
 
 # Datapot
-*Open source tool for machine learning on semi-structured data, that creates numeric object-feature matrix from JSON. 
+*Open source tool for machine learning on semi-structured data that creates numeric object-feature matrix from JSON. 
 The idea of Datapot is to make the process of data preparation and feature extraction automatic, easy and effective.*
 
 <img src="data/datapot_feature_extraction.png">
@@ -21,7 +21,7 @@ $ cd datapot
 $ pip install .
 ```
 
-To create a Datapot object simply write the following:
+To **create a Datapot** object simply write the following:
 
 ```
 import datapot as dp 
@@ -87,11 +87,8 @@ Datapot provides many ways of extracting features from JSON-s.
  - Integers (Transform array of ints to their sum divided by average length of array in training set)
  - Timeseries (Calculate descriptive statistical properties of a given time series)
  - Timestamp  (Extract date, time, day of week, day of monat etc.)
- -  Text 
-     - Tfidf  (Returns NMF transformation of text's Tfidf representation)
-     - Word2Vec (Returns the average Word2Vec vectors for each text)
- - Categorial
-    - SVD One-Hot (One-hot encoding with dimension reduction (SVD) in case of too many features)
+ -  Text (Tfidf, Word2Vec representation)
+ - Categorial (One-hot encoding with dimension reduction SVD)
 
 
 ## Authors
