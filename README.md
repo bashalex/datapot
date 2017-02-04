@@ -5,6 +5,7 @@
 **[Authors](#authors)** 
 
 # Datapot
+[![Build Status](https://travis-ci.org/bashalex/datapot.svg?branch=master)](https://travis-ci.org/bashalex/datapot)
 
 *Open source tool for machine learning on semi-structured data.
 Datapot creates numeric object-feature matrix from JSON.*
