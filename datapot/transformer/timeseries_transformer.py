@@ -49,7 +49,7 @@ class TimeSeriesTransformer(BaseTransformer):
     def _entropy(self, ts):
         # simple way to determine stationarity that doesn't work
         return 0.1
-        """
+        """ This doesn't work now
         def _maxdist(x_i, x_j):
             return max([abs(ua - va) for ua, va in zip(x_i, x_j)])
         def _phi(m):
@@ -82,7 +82,7 @@ class TimeSeriesTransformer(BaseTransformer):
             self.confidence = max(self.confidence - CONFIDENCE_PENALTY, 0)
             return False
 
-        if len(value) < 5:
+        if len(value) < TIME_SERIES_MIN_LENGTH:
             self.confidence = max(self.confidence - CONFIDENCE_PENALTY, 0)
             return False
 

@@ -50,7 +50,6 @@ class BaseTextTransformer(BaseTransformer):
             self.stopwords_set = set()
         else:
             self.stopwords_set = set(stopwords.words(self.language))
-        print(self.language)
 
     def validate(self, field, feature_value):
         # TODO: change this logic, just an example
@@ -58,7 +57,7 @@ class BaseTextTransformer(BaseTransformer):
             self.confidence = max(self.confidence - NON_STRING_PENALTY, 0)
             return False
 
-        if len(feature_value) <= 10:
+        if len(feature_value) <= NORMAL_TEXT_MIN_SIZE:
             self.confidence = max(self.confidence - SMALL_STRING_LENGHT_PENALTY, 0)
             return False
 

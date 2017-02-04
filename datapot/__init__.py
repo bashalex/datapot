@@ -5,26 +5,7 @@ import io
 import json
 import pandas as pd
 from six import string_types
-from future.builtins import (
-    ascii,
-    bytes,
-    chr,
-    dict,
-    filter,
-    hex,
-    input,
-    int,
-    map,
-    next,
-    oct,
-    open,
-    pow,
-    range,
-    round,
-    str,
-    super,
-    zip
-)
+from future.builtins import *
 
 from . import transformer
 from .transformer.base_transformer import BaseTransformer
@@ -47,13 +28,12 @@ class DataPot:
     def __str__(self):
         res = (
             'DataPot class instance\n'
-            ' - number of features without transformation: {0}\n'
-            ' - number of new features: '
-            '{1}\n'
+            ' - number of features without transformation: {n_old_features}\n'
+            ' - number of new features: {n_new_features}\n'
             'features to transform: \n'
         ).format(
-            len(self.__fields.keys()),
-            'Unknown' if self.__num_new_features is None else self.__num_new_features
+            n_old_features=len(self.__fields.keys()),
+            n_new_features='Unknown' if self.__num_new_features is None else self.__num_new_features
         )
 
         for x in self.__fields.items():
@@ -102,7 +82,6 @@ class DataPot:
             obj_fields = decoder.decode(obj)
             for name, value in obj_fields.items():
                 self.__parse(name, value)
-            # print("fields:", self.__fields, sep="\n")
             if iteration == limit:
                 break
 
@@ -294,20 +273,20 @@ class DataPot:
         if name in self.__fields.keys():
             # value from the same field was already checked
             _transformers = self.__fields.get(name)
-            num = 0
-            while num < len(_transformers):
-                _transformers[num].validate(name, value)
-                if _transformers[num].confidence == 0:
-                    del _transformers[num]
+            accepted_transformers = 0
+            while accepted_transformers < len(_transformers):
+                _transformers[accepted_transformers].validate(name, value)
+                if _transformers[accepted_transformers].confidence == 0:
+                    del _transformers[accepted_transformers]
                 else:
-                    num += 1
+                    accepted_transformers += 1
 
-            if num == 0 and isinstance(value, (list, dict)):
+            if accepted_transformers == 0 and isinstance(value, (list, dict)):
                 # remove field at all if it is a complex field
                 # (array or json object)
                 del self.__fields[name]
 
-            return num > 0  # at least one transformer left in the list
+            return accepted_transformers > 0  # at least one transformer left in the list
 
         suitable_transformers = []
         for _transformer in self.__transformers:

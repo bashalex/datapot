@@ -83,15 +83,16 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
 
         if self.apply_dimension_reduction:
             self.dim_reducer = TruncatedSVD(n_components=self._n_components)
-            self.dim_reducer.fit(
-                self.one_hot_encoder.transform([[self.features[x]] for x in all_values]))
+            numeric_values = [[self.features[x]] for x in all_values]
+            encoded_values = self.one_hot_encoder.transform(numeric_values)
+            self.dim_reducer.fit(encoded_values)
 
         return self
 
     def transform(self, value):
         if not isinstance(value, collections.Hashable):
             return None
-        value = ([[self.features[value]]] if value in self.features else [[len(self.features)]])
+        value = [[self.features[value]]] if value in self.features else [[len(self.features)]]
         feature_array = self.one_hot_encoder.transform(value)
         if self.apply_dimension_reduction:
             return self.dim_reducer.transform(feature_array)[0].tolist()

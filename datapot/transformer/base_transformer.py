@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 from abc import ABCMeta, abstractmethod
 
+INITIAL_CONFIDENCE = 0.5
 
 class BaseTransformer:
     """Base transformer's class
@@ -15,7 +16,7 @@ class BaseTransformer:
 
     __metaclass__ = ABCMeta
 
-    confidence = 0.5
+    confidence = INITIAL_CONFIDENCE
 
     @abstractmethod
     def validate(self, field, value):
