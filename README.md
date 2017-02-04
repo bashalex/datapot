@@ -2,10 +2,10 @@
 **[Usage](#setup)** |
 **[Examples](./notebooks/)** |
 **[Features](#setup)** |
-**[Authors](#authors)** |
+**[Authors](#authors)** 
 
 # Datapot
----
+
 *Open source tool for machine learning on semi-structured data.
 Datapot creates numeric object-feature matrix from JSON.*
 
@@ -16,7 +16,7 @@ The idea of Datapot is to make the process of data preparation and feature extra
 
 
 ## Usage
----
+
 
 ### Install Datapot:
 ```bash
@@ -33,7 +33,7 @@ data = dp.DataPot()
 ```
 
 
-### DataPot has two main methods:
+#### DataPot has two main methods:
 - fit()
 - transform()
 
@@ -77,28 +77,29 @@ num of new features: 315
 
 
 ### Examples 
----
+
 Look for [more examples](./notebooks/) of using Datapot with different datasets and more Transformer specific.
 
 
 
 
 ## Features
----
+
  - Boolean Transformer (Replaces 'False' and 'True' with zeros and ones)
  - Complex Transformer (Transform array of ints to their sum divided by average length of array in training set)
  - Timeseries Transformer (Calculate descriptive statistical properties of a given time series)
  - Timestamp Transformer (Extract date, time, day of week, day of monat etc.)
  -  Text Transformers: 
-        -- Tfidf Transformer (Returns NMF transformation of text's Tfidf representation)
+     - Tfidf Transformer (Returns NMF transformation of text's Tfidf representation)
 <!-- Rename Transformer as NMFTfidfTransformer ? => no comments? -->
-        -- Word2Vec Transformer <!--(Returns the average Word2Vec vectors for each text)-->
+     - Word2Vec Transformer <!--(Returns the average Word2Vec vectors for each text)-->
+
  - Categorial Transformer:
-         - SVD One-Hot Transformer <!--(One-hot encoding with dimension reduction (SVD) in case there are too many features)-->
+    - SVD One-Hot Transformer <!--(One-hot encoding with dimension reduction (SVD) in case there are too many features)-->
 
 
 ## Authors
----
+
 - Alex Bash
 - Yuriy Mokriy
 - Nikita Savelyev
