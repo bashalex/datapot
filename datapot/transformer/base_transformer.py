@@ -4,6 +4,7 @@ from abc import ABCMeta, abstractmethod
 
 INITIAL_CONFIDENCE = 0.5
 
+
 class BaseTransformer:
     """Base transformer's class
 
