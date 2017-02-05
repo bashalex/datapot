@@ -23,9 +23,9 @@ $ pip install .
 
 To **create a Datapot** object simply write the following:
 
-```
-import datapot as dp 
-data = dp.DataPot()
+```python
+>>> import datapot as dp 
+>>> data = dp.DataPot()
 ```
 
 
@@ -33,18 +33,14 @@ data = dp.DataPot()
 - fit()
 - transform()
 
-####  fit()
-Method **fit**(self, data, limit) goes through the first  N  objects (N = limit), passes the possible features to Transformers. Each Transformer evaluates if a feature from current field or a number of fields can be created. As a result a dict of features  and Transformers is created.
+ **fit()**
+Method `fit(self, data, limit)` goes through the first  N  objects (N = limit), passes the possible features to Transformers. Each Transformer evaluates if a feature from current field or a number of fields can be created. As a result a dict of features  and Transformers is created.
 
-To apply fit() to JSON file:
-```
-f = open('data/matches_test.jsonlines', 'r')
-data.fit(f, limit=100)
-data
-```
-
-Output:
-```
+To apply `fit()` to JSON file:
+```python
+>>> f = open('data/matches_test.jsonlines', 'r')
+>>> data.fit(f, limit=100)
+>>> data
 DataPot class instance
  - number of features without transformation: 806
  - number of new features: 315
@@ -58,15 +54,11 @@ features to transform:
     (u'players.3.kills_log.0.unit', [TfidfTransformer])
 ```
 
+**transform()**
+Method `transform(self, data, verbose)` generates a pandas. DataFrame with new features that were detected on the fit() call. If parameter verbose is true, progress description is printed during the feature extraction.
 
-####  transform()
-Method **transform**(self, data, verbose) generates a pandas. DataFrame with new features that were detected on the fit() call. If parameter verbose is true, progress description is printed during the feature extraction.
-
-```
-df = data.transform(f, verbose=False)
-```
-Output:
-```
+```python
+>>> df = data.transform(f, verbose=False)
 fit transformers...OK
 num of new features: 315
 ```
@@ -82,13 +74,13 @@ Look for [more examples](./notebooks/) of using Datapot with different datasets 
 ## Features
 Datapot provides many ways of extracting features from JSON-s.
 
-**Data types that can be processed:**
- - Boolean (Replaces 'False' and 'True' with zeros and ones)
- - Integers (Transform array of ints to their sum divided by average length of array in training set)
- - Timeseries (Calculate descriptive statistical properties of a given time series)
- - Timestamp  (Extract date, time, day of week, day of monat etc.)
- -  Text (Tfidf, Word2Vec representation)
- - Categorial (One-hot encoding with dimension reduction SVD)
+Data types that can be processed:
+ - Boolean 
+ - Numerical array (transform array to their sum divided by average length of array in training set)
+ - Time series (сalculate descriptive statistical properties of a given time series)
+ - Timestamp  (date, time, day of week, day of month etc.)
+ - Text (bag of words tf-idf, word2vec)
+ - Categorial (one-hot encoding, dimension reduction)
 
 
 ## Authors
