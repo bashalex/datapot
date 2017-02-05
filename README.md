@@ -33,7 +33,6 @@ To **create a Datapot** object simply write the following:
 - fit()
 - transform()
 
- **fit()**
 Method `fit(self, data, limit)` goes through the first  N  objects (N = limit), passes the possible features to Transformers. Each Transformer evaluates if a feature from current field or a number of fields can be created. As a result a dict of features  and Transformers is created.
 
 To apply `fit()` to JSON file:
@@ -45,16 +44,15 @@ DataPot class instance
  - number of features without transformation: 806
  - number of new features: 315
 features to transform: 
-    (u'players.0.gold_t', [TestComplexTransformer(average_len_of_array=None)])
-    (u'players.9.gold_t', [TestComplexTransformer(average_len_of_array=None)])
-    (u'picks_bans.13.is_pick', [TestBoolToIntTransformer])
-    (u'picks_bans.5.is_pick', [TestBoolToIntTransformer])
-    (u'players.5.lh_t', [TestComplexTransformer(average_len_of_array=None)])
-    (u'players.0.xp_t', [TestComplexTransformer(average_len_of_array=None)])
-    (u'players.3.kills_log.0.unit', [TfidfTransformer])
+    (u'players.0.gold_t', [ComplexTransformer])
+    (u'picks_bans.0.is_pick', [BoolToIntTransformer])
+    (u'players.0.kills_log.0.unit', [TfidfTransformer])
+    (u'players.1.xp_t', [ComplexTransformer])
+    (u'picks_bans.1.is_pick', [BoolToIntTransformer])
+    (u'players.1.kills_log.0.unit', [TfidfTransformer])
+    ...
 ```
 
-**transform()**
 Method `transform(self, data, verbose)` generates a pandas. DataFrame with new features that were detected on the fit() call. If parameter verbose is true, progress description is printed during the feature extraction.
 
 ```python
