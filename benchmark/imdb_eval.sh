@@ -1,7 +1,7 @@
 #!/bin/bash
 
 in="imdb.tsv"
-wget https://www.dropbox.com/s/34wv42gopxnqgbk/labeledTrainData.tsv?dl=1 -O $in 
+wget https://www.dropbox.com/s/34wv42gopxnqgbk/labeledTrainData.tsv?dl=1 -O $in
 ./benchmark/prep.py $in
 filename=(${in//./ })
 out=${filename[0]}$".json"
