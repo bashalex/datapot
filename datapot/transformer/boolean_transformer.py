@@ -1,10 +1,11 @@
 from .base_transformer import BaseTransformer
 
+CONFIDENCE_PENALTY = 0.1
+CONFIDENCE_REWARD = 0.1
+
 
 class TestBoolTransformer(BaseTransformer):
-    """
-    Replaces 'False' and 'True' with zeros and ones
-    """
+    """Replaces 'False' and 'True' with zeros and ones"""
 
     @staticmethod
     def requires_fit():
@@ -17,7 +18,8 @@ class TestBoolTransformer(BaseTransformer):
         return self.__str__()
 
     def __init__(self):
-        # here could be some specific parameters for this particular transformer
+        # here could be some specific parameters
+        # for this particular transformer
         pass
 
     def names(self):
@@ -25,10 +27,10 @@ class TestBoolTransformer(BaseTransformer):
 
     def validate(self, field, value):
         if not isinstance(value, bool):
-            self.confidence = max(self.confidence - 0.1, 0)
+            self.confidence = max(self.confidence - CONFIDENCE_PENALTY, 0)
             return False
 
-        self.confidence = min(self.confidence + 0.1, 1)
+        self.confidence = min(self.confidence + CONFIDENCE_REWARD, 1)
         return True
 
     def fit(self, all_values):
