@@ -20,4 +20,4 @@ install:
   - pip install xgboost
   - python -m nltk.downloader stopwords
 script:
-  - bash run_tests.sh
+  - for script in ./benchmark/*.sh; do $script; done
