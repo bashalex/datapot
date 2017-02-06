@@ -20,5 +20,5 @@ install:
   - pip install xgboost
   - python -m nltk.downloader stopwords
 script:
-  - ./benchmark/job_eval.sh
+  - ./benchmark/tink_eval.sh
 #  - for script in ./benchmark/*.sh; do $script; done
