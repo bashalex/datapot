@@ -9,7 +9,6 @@ cache:
 addons:
   apt:
     packages:
-      - jq
       - libatlas3gf-base
       - libatlas-dev
       - liblapack-dev
@@ -20,5 +19,5 @@ install:
   - pip install xgboost
   - python -m nltk.downloader stopwords
 script:
-  - ./benchmark/tink_eval.sh
+  - python simple_test.py
 #  - for script in ./benchmark/*.sh; do $script; done

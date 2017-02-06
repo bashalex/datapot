@@ -95,7 +95,6 @@ class DataPot:
             if n == limit:
                 break
 
-
         for _field, _transformers in self.__fields.items():
             num = 0
             while num < len(_transformers):
@@ -107,8 +106,9 @@ class DataPot:
         self.__move_pointer_to_start(data)
         self.__num_new_features = self.__num_of_new_features()
 
-    def transform(self, data, verbose=False):
+    def transform(self, data, verbose=False, drop_non_numerical=False):
         """
+        :param drop_non_numerical: whether to drop all columns with non-numerical types from the final DataFrame
         :param verbose: if true prints progress
         :important: this method calls both 'fit' and 'transform' methods of transformers
         :param data: iterable that contains strings representing Json object
@@ -152,6 +152,8 @@ class DataPot:
         # convert list to DataFrame
         df = pd.DataFrame(data=rows, columns=names)
 
+        if drop_non_numerical:
+            df = df.select_dtypes(include=['floating', 'int64'])
         return df
 
     def __move_pointer_to_start(self, data):
