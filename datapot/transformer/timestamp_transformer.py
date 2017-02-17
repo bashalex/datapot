@@ -41,7 +41,7 @@ class BaseTimestampTransformer(BaseTransformer):
                 high: current time + 20 years (01/01/1990 @ 12:00am (UTC) -
                 01/01/1970 @ 12:00am (UTC)) === time.time() + 631152000
             """
-            if isinstance(value, [float, int]) and YEAR_1975 < value < time.time() + TWENTY_YEARS:
+            if isinstance(value, (float, int)) and YEAR_1975 < value < time.time() + TWENTY_YEARS:
                 datetime.fromtimestamp(value)
                 is_valid_value = True
                 self.num_of_valid += 1
