@@ -30,8 +30,15 @@ def main():
     df = datapot.transform(data, verbose=True)
     print('transform time:', time.time()-t0)
 
-    X = df.drop(['open_account_flg'], axis=1)
-    y = df['open_account_flg']
+    X = df.drop(['living_region', 'open_account_flg_one_hot0', 'open_account_flg_one_hot1'], axis=1)
+
+    #convert '<str> 20450,00' to '<int> 20450'
+    X.credit_sum = X.credit_sum.apply(lambda x: x[:-3]).astype(int)
+
+    #convert '<str> 0,25689' to '<float> 0.25689'
+    X.score_shk = X.score_shk.apply(lambda x: '0.'+x[2:]).astype(float)
+
+    y = df['open_account_flg_one_hot1']
     model = xgb.XGBClassifier()
     print('Cross-val score', cross_val_score(model, X, y, cv=5))
 
