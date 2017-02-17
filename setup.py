@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
-import sys
 import os
 from setuptools import setup, find_packages
-
-sys.path.insert(0, '.')
 
 CURRENT_DIR = os.path.dirname(__file__)
 
@@ -16,6 +13,8 @@ setup(name='datapot',
       author='Alex Bash, Yuriy Mokriy, Nikita Savelyev, Michal Rozenwald, Peter Romov',
       author_email='avbashlykov@gmail.com, yurymokriy@gmail.com, n.a.savelyev@gmail.com, michal.rozenwald@gmail.com, romovpa@gmail.com',
       license='Apache2',
+      maintainer='Nikita Savelyev',
+      maintainer_email='n.a.savelyev@gmail.com',
       install_requires=[
           'numpy',
           'scipy',
