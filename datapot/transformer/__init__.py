@@ -1,3 +1,4 @@
+from .numeric_transformer import NumericTransformer
 from .boolean_transformer import TestBoolTransformer
 from .complex_transformer import TestComplexTransformer
 from .text_transformer import TfidfTransformer
@@ -12,5 +13,6 @@ __all__ = [
     TestComplexTransformer,
     TfidfTransformer,
     SVDOneHotTransformer,
-    TimeSeriesTransformer
+    TimeSeriesTransformer,
+    NumericTransformer
 ]
