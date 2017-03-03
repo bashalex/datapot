@@ -1,19 +1,25 @@
-from .base_transformer import  BaseTransformer
-import sklearn
 import collections
 
+from sklearn.decomposition import TruncatedSVD
+from sklearn.preprocessing import OneHotEncoder
+
+from .base_transformer import BaseTransformer
+
 # TODO: change constant's name
-CATEGORICAL_MAX_SIZE = 100
+CATEGORICAL_FEATURES_MAX_NUMBER = 100
 SVD_COMPONENTS = 10
+REPEATS_RATE_TO_CHOOSE_THRESHOLD = 0.8
+CONFIDENT = 1
+NONCONFIDENT = 0.6
+
 
 class BaseCategoricalTransformer(BaseTransformer):
-    """
-    Base class for categorical transformers
-    """
+    """Base class for categorical transformers"""
 
-    validate_set = set()
-    repeats = 0
-    _n_components = 0
+    def __init__(self):
+        self.validate_set = set()
+        self.repeats = 0
+        self._n_components = 0
 
     @staticmethod
     def requires_fit():
@@ -29,25 +35,29 @@ class BaseCategoricalTransformer(BaseTransformer):
         else:
             self.validate_set.add(value)
 
-        if float(self.repeats) / (len(self.validate_set) + self.repeats) >= 0.5:
-            self.confidence = 1
+        repeats_rate = float(self.repeats) / (len(self.validate_set) + self.repeats)
+
+        if repeats_rate >= REPEATS_RATE_TO_CHOOSE_THRESHOLD:
+            self.confidence = CONFIDENT
         else:
-            self.confidence = 0.6
+            self.confidence = NONCONFIDENT
 
 
 class SVDOneHotTransformer(BaseCategoricalTransformer):
-    """
-    One-hot encoding with dimension reduction (SVD) in case there are too many features .
-    """
+    """One-hot encoding + SVD dimension reduction
 
-    apply_dimension_reduction = False
-    features = dict()
+    One-hot encoding with dimension reduction (SVD)
+    in case there are too many features .
+    """
 
     def __init__(self, dimension_reduction=True):
+        super(SVDOneHotTransformer, self).__init__()
+        self.apply_dimension_reduction = False
+        self.features = dict()
         self.dimension_reduction = dimension_reduction
 
     def __str__(self):
-        return "SVDOneHotTransformer"
+        return 'SVDOneHotTransformer'
 
     def names(self):
         return ['one_hot' + str(i) for i in range(self._n_components)]
@@ -57,26 +67,25 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
         self.features = dict()
         self.apply_dimension_reduction = False
 
-
         for value in all_values:
             if value not in self.features:
                 self.features[value] = len(self.features)
 
-        if len(self.features) <= CATEGORICAL_MAX_SIZE:
-            self.one_hot_encoder = sklearn.preprocessing.OneHotEncoder(sparse=False,
-                                                                       handle_unknown='ignore')
+        if len(self.features) <= CATEGORICAL_FEATURES_MAX_NUMBER:
+            self.one_hot_encoder = OneHotEncoder(sparse=False, handle_unknown='ignore')
             self._n_components = len(self.features)
         else:
             self.apply_dimension_reduction = True
-            self.one_hot_encoder = sklearn.preprocessing.OneHotEncoder(sparse=True,
-                                                                       handle_unknown='ignore')
+            self.one_hot_encoder = OneHotEncoder(sparse=True, handle_unknown='ignore')
             self._n_components = SVD_COMPONENTS
 
         self.one_hot_encoder.fit([[self.features[value]] for value in all_values])
 
         if self.apply_dimension_reduction:
-            self.dim_reducer = sklearn.decomposition.TruncatedSVD(n_components=self._n_components)
-            self.dim_reducer.fit(self.one_hot_encoder.transform([[self.features[x]] for x in value]))
+            self.dim_reducer = TruncatedSVD(n_components=self._n_components)
+            numeric_values = [[self.features[x]] for x in all_values]
+            encoded_values = self.one_hot_encoder.transform(numeric_values)
+            self.dim_reducer.fit(encoded_values)
 
         return self
 
@@ -92,7 +101,5 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
 
 
 class CountersTransformer(BaseCategoricalTransformer):
-    """
-    Counters transformer.
-    """
+    """Counters transformer."""
     pass
