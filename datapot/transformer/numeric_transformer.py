@@ -35,6 +35,9 @@ class NumericTransformer(BaseTransformer):
         smooth_all_number = self.all_number + VALIDATE_SMOOTHNESS_CONSTANT
         self.confidence = smooth_valid_number / smooth_all_number
 
+    def fit(self, all_values):
+        pass
+
     def transform(self, value):
         if isinstance(value, str):
             value = re.sub(',', '.', value)
