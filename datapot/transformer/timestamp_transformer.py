@@ -8,15 +8,15 @@ from .base_transformer import BaseTransformer
 
 YEAR_1975 = 157766400
 TWENTY_YEARS = 631152000
-CONFIDENCE_PENALTY = 0.1
-CONFIDENCE_REWARD = 0.1
 
 
 class BaseTimestampTransformer(BaseTransformer):
     """Base class for timestamp transformers"""
 
-    num_of_examples = 0.
-    num_of_valid = 0.
+    def __init__(self):
+        self.valid_number = 0.
+        self.all_number = 0.
+
 
     def validate(self, field, value):
         """Check is the value is timestamp
@@ -30,9 +30,6 @@ class BaseTimestampTransformer(BaseTransformer):
                String etc; dict or list
         :return: boolean, whether the value is suitable for the transformer
         """
-        is_valid_value = False
-        self.num_of_examples += 1
-
         try:
             """Set time interval to detect unixtime value
 
@@ -43,19 +40,15 @@ class BaseTimestampTransformer(BaseTransformer):
             """
             if isinstance(value, [float, int]) and YEAR_1975 < value < time.time() + TWENTY_YEARS:
                 datetime.fromtimestamp(value)
-                is_valid_value = True
-                self.num_of_valid += 1
-
+                self.valid_number += 1
             elif isinstance(value, str):
                 parse(value)
-                is_valid_value = True
-                self.num_of_valid += 1
+                self.valid_number += 1
         except:
-            is_valid_value = False
-
-        self.confidence = self.num_of_valid / self.num_of_examples
-
-        return is_valid_value
+            # current value is not detected as timestamp
+            pass
+        self.all_number += 1
+        self.confidence = self.valid_number / self.all_number
 
 
 class TimestampTransformer(BaseTimestampTransformer):
@@ -84,6 +77,8 @@ class TimestampTransformer(BaseTimestampTransformer):
         return self.__str__()
 
     def __init__(self, dayfirst=False):
+        self.valid_number = 0.
+        self.all_number = 0.
         # TODO: 1484673907123 type + add user/manual flexability (dayfirst=True), select features form the created set (new_features)
         self.dayfirst = dayfirst
 
