@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-import sys
-sys.path.append('..')
 import datapot as dp
+import os
 from time import time
 
 data = open('tink.jsonlines', 'r')
@@ -9,6 +8,7 @@ datapot = dp.DataPot()
 start = time()
 datapot.fit(data)
 print('fit time:', time()-start)
+print(datapot)
 start = time()
 df = datapot.transform(data, verbose=True)
 print('transform time:', time()-start)
