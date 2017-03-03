@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-import sys
-sys.path.append('..')
 import datapot as dp
 from time import time
 
