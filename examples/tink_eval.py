@@ -41,13 +41,19 @@ X.score_shk = X.score_shk.apply(lambda x: '0.'+x[2:]).astype(float)
 y = df['open_account_flg_one_hot1']
 model = xgb.XGBClassifier()
 cv_score = cross_val_score(model, X, y, cv=5)
-assert all(i > 0.5 for i in cv_score)
+try:
+    assert all(i > 0.5 for i in cv_score)
+except AssertionError:
+    sys.exit(1)
 
 print('Cross-val score', cv_score)
 
 model.fit(X, y)
 fi = model.feature_importances_
-assert len(fi) > 0
+try:
+    assert len(fi) > 0
+except AssertionError:
+    sys.exit(1)
 
 print('Feature importance:')
 print(*(list(zip(X.columns, fi))), sep='\n')

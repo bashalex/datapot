@@ -20,7 +20,7 @@ install:
   - python -m nltk.downloader stopwords
 script:
   - python simple_test.py
-  - python examples/tink_eval.py
   - python examples/imdb_eval.py
+  - python examples/tink_eval.py
 
 #  - for script in ./benchmark/*.sh; do $script; done
