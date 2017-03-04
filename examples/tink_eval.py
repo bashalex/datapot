@@ -27,7 +27,10 @@ print('fit time:', time.time()-t0)
 datapot.remove_transformer('living_region', 0)
 
 t0 = time.time()
-df = datapot.transform(data, verbose=True)
+try:
+    df = datapot.transform(data, verbose=True)
+except:
+    sys.exit(1)
 print('transform time:', time.time()-t0)
 
 X = df.drop(['living_region', 'open_account_flg_one_hot0', 'open_account_flg_one_hot1'], axis=1)

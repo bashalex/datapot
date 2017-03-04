@@ -25,7 +25,12 @@ print('fit time:', time.time()-t0)
 datapot.remove_transformer('sentiment', 0)
 
 t0 = time.time()
-df = datapot.transform(data, verbose=True)
+try:
+    df = datapot.transform(data, verbose=True)
+except: 
+    sys.exit(1)
+
+
 print('transform time:', time.time()-t0)
 
 X = df.drop(['sentiment', 'id'], axis=1)
