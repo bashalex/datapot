@@ -17,39 +17,28 @@ from datapot.datasets import fetch_imdb
 
 fetch_imdb()
 data = bz2.BZ2File('data/imdb.jsonlines.bz2')
-
 datapot = dp.DataPot()
+
 t0 = time.time()
 datapot.fit(data)
 print('fit time:', time.time()-t0)
+
 datapot.remove_transformer('sentiment', 0)
 
 t0 = time.time()
-try:
-    df = datapot.transform(data, verbose=True)
-except: 
-    sys.exit(1)
-
-
+df = datapot.transform(data, verbose=True)
 print('transform time:', time.time()-t0)
 
 X = df.drop(['sentiment', 'id'], axis=1)
 y = df['sentiment']
+
 model = xgb.XGBClassifier()
 cv_score = cross_val_score(model, X, y, cv=5)
-try:
-    assert all(i > 0.5 for i in cv_score)
-except AssertionError:
-    sys.exit(1)
-
+assert all(i > 0.5 for i in cv_score), 'Low score!'
 print('Cross-val score:', cv_score)
 
 model.fit(X, y)
 fi = model.feature_importances_
-try:
-    assert len(fi) > 0
-except AssertionError:
-    sys.exit(1)
 
 print('Feature importance:')
 print(*(list(zip(X.columns, fi))), sep='\n')

@@ -19,18 +19,15 @@ from datapot.datasets import fetch_tinkoff
 
 fetch_tinkoff()
 data = bz2.BZ2File('data/tink.jsonlines.bz2')
-
 datapot = dp.DataPot()
+
 t0 = time.time()
 datapot.fit(data)
 print('fit time:', time.time()-t0)
 datapot.remove_transformer('living_region', 0)
 
 t0 = time.time()
-try:
-    df = datapot.transform(data, verbose=True)
-except:
-    sys.exit(1)
+df = datapot.transform(data, verbose=True)
 print('transform time:', time.time()-t0)
 
 X = df.drop(['living_region', 'open_account_flg_one_hot0', 'open_account_flg_one_hot1'], axis=1)
@@ -44,19 +41,11 @@ X.score_shk = X.score_shk.apply(lambda x: '0.'+x[2:]).astype(float)
 y = df['open_account_flg_one_hot1']
 model = xgb.XGBClassifier()
 cv_score = cross_val_score(model, X, y, cv=5)
-try:
-    assert all(i > 0.5 for i in cv_score)
-except AssertionError:
-    sys.exit(1)
-
+assert all(i > 0.5 for i in cv_score), 'Low score!'
 print('Cross-val score', cv_score)
 
 model.fit(X, y)
 fi = model.feature_importances_
-try:
-    assert len(fi) > 0
-except AssertionError:
-    sys.exit(1)
 
 print('Feature importance:')
 print(*(list(zip(X.columns, fi))), sep='\n')
