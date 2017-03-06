@@ -18,10 +18,9 @@ install:
   - pip install .
   - pip install xgboost
   - python -m nltk.downloader stopwords
-  - travis_wait 30 mvn install
 script:
   - python simple_test.py
-  - python examples/imdb_eval.py
-  - python examples/tink_eval.py
+  - travis_wait 30 python examples/imdb_eval.py
+  - travis_wait 30 python examples/tink_eval.py
 
 #  - for script in ./benchmark/*.sh; do $script; done
