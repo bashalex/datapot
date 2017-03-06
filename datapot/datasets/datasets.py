@@ -6,8 +6,8 @@ IMDB_FILENAME = "imdb.jsonlines.bz2"
 IMDB_URL = "https://www.dropbox.com/s/5k1nci6m3bqrh4i/imdb.jsonlines.bz2?dl=1"
 TINKOFF_FILENAME = "tink.jsonlines.bz2"
 TINKOFF_URL = "https://www.dropbox.com/s/gwu8r2zf7ece0ws/tink.jsonlines.bz2?dl=1"
-JOB_SALARY_FILENAME = "job.jsolines.bz2"
-JOB_SALARY_URL = "https://www.dropbox.com/s/7v1m2lfhhx92tcm/job.jsonlines.bz2?dl=1"
+JOB_SALARY_FILENAME = "job.jsonlines.bz2"
+JOB_SALARY_URL = "https://www.dropbox.com/s/7clzi7synp07c7d/job.jsonlines.bz2?dl=1"
 
 DATA_HOME = 'data/'
 
