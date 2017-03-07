@@ -4,6 +4,7 @@ import gensim.models.word2vec as Word2Vec
 import iso639
 import langdetect
 import numpy as np
+from time import time
 from future.builtins import map, range, str
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
@@ -69,7 +70,7 @@ class BaseTextTransformer(BaseTransformer):
         if text is None:
             return NONE_TEXT
 
-        text = self.alpha_numeric_regexp.sub(' ', text.lower())
+        text = text.lower()
         return text
 
     def _stemming(self, text):
@@ -129,7 +130,6 @@ class TfidfTransformer(BaseTextTransformer):
             text_feature = [self._clean_text(text_feature)]
         else:
             text_feature = self._clean_text_feature(text_feature)
-
         vectorized_feature = self.vectorizer.transform(text_feature)
         return self.nmf.transform(vectorized_feature).tolist()[0]
 
