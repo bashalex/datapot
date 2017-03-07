@@ -8,6 +8,7 @@ from time import time
 from future.builtins import map, range, str
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
+from Stemmer import Stemmer
 from six import string_types
 from sklearn.decomposition import NMF
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -70,11 +71,11 @@ class BaseTextTransformer(BaseTransformer):
         if text is None:
             return NONE_TEXT
 
-        text = text.lower()
+        text = self.alpha_numeric_regexp.sub(' ', text.lower())
         return text
 
     def _stemming(self, text):
-        self.stem = (lambda x: x) if self.language == 'other' else SnowballStemmer(self.language).stem
+        self.stem = (lambda x: x) if self.language == 'other' else Stemmer(self.language).stemWord
 
         return ' '.join(self.stem(word) for word in text.split() if word not in self.stopwords_set)
 
