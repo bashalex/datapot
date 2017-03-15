@@ -159,6 +159,11 @@ class DataPot:
         """
         :return: list of all feature names after transformation
         """
+        def format_field_name(field, suffix):
+            if suffix == '':
+                return field
+            return '{}_{}'.format(field, suffix)
+
         result = []
         for _field, _transformers in self.__fields.items():
             if len(_transformers) == 0:
@@ -167,9 +172,9 @@ class DataPot:
             for _transformer in _transformers:
                 suffixes = _transformer.names()
                 if isinstance(suffixes, list):
-                    result += ['{}_{}'.format(_field, suffix) for suffix in suffixes]
+                    result += [format_field_name(_field, suffix) for suffix in suffixes]
                 else:
-                    result.append('{}_{}'.format(_field, suffixes))
+                    result.append(format_field_name(_field, suffixes))
         return result
 
     def __fit_transformers(self, data, verbose):

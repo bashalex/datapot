@@ -24,8 +24,8 @@ df = data.transform(dummy_data, drop_non_numerical=True)
 print(df)
 
 # we are going to predict rating
-y = df['rating_as_is']
-X = df.drop('rating_as_is', axis=1)
+y = df['rating']
+X = df.drop('rating', axis=1)
 
 # evaluate prediction score using xgboost
 model = xgb.XGBRegressor()

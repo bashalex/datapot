@@ -23,7 +23,7 @@ class NumericTransformer(BaseTransformer):
         return False
 
     def names(self):
-        return 'as_is'
+        return ''
 
     def validate(self, field, value):
         if isinstance(value, str):
@@ -41,5 +41,8 @@ class NumericTransformer(BaseTransformer):
     def transform(self, value):
         if isinstance(value, str):
             value = re.sub(',', '.', value)
-        return fastnumbers.fast_real(value, np.nan)
+        try:
+            return fastnumbers.fast_real(value, np.nan, raise_on_invalid=False)
+        except TypeError:
+            return np.nan
 
