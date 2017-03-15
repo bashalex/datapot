@@ -75,7 +75,7 @@ class BaseTextTransformer(BaseTransformer):
         return text
 
     def _stemming(self, text):
-        self.stem = (lambda x: x) if self.language == 'other' else Stemmer(self.language).stemWord
+        self.stem = (lambda x: x) #if self.language == 'other' else Stemmer(self.language).stemWord
 
         return ' '.join(self.stem(word) for word in text.split() if word not in self.stopwords_set)
 
