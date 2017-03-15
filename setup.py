@@ -26,7 +26,8 @@ setup(name='datapot',
           'nltk',
           'tsfresh',
           'python-dateutil',
-          'fastnumbers'
+          'fastnumbers',
+          'pystemmer',
       ],
       classifiers=[
           'Development Status :: 3 - Alpha',
