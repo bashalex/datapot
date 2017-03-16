@@ -160,8 +160,9 @@ class DataPot:
         :return: list of all feature names after transformation
         """
         def format_field_name(field, suffix):
+            # we may have some problem with unicode non-ascii characters
             if suffix == '':
-                return field
+                return str(field)
             return '{}_{}'.format(field, suffix)
 
         result = []

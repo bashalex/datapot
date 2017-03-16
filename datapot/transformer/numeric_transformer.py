@@ -1,4 +1,5 @@
 import re
+from six import string_types
 
 import fastnumbers
 import numpy as np
@@ -26,7 +27,7 @@ class NumericTransformer(BaseTransformer):
         return ''
 
     def validate(self, field, value):
-        if isinstance(value, str):
+        if isinstance(value, string_types):
             value = re.sub(',', '.', value)
         if fastnumbers.isreal(value):
             self.valid_number += 1
@@ -39,7 +40,7 @@ class NumericTransformer(BaseTransformer):
         pass
 
     def transform(self, value):
-        if isinstance(value, str):
+        if isinstance(value, string_types):
             value = re.sub(',', '.', value)
         try:
             return fastnumbers.fast_real(value, np.nan, raise_on_invalid=False)

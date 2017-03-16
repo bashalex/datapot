@@ -71,7 +71,7 @@ class BaseTextTransformer(BaseTransformer):
         if text is None:
             return NONE_TEXT
 
-        text = text.lower()#self.alpha_numeric_regexp.sub(' ', text.lower())
+        text = self.alpha_numeric_regexp.sub(' ', text.lower())
         return text
 
     def _stemming(self, text):
