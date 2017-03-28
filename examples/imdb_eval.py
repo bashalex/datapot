@@ -29,7 +29,7 @@ t0 = time.time()
 df = datapot.transform(data, verbose=True)
 print('transform time:', time.time()-t0)
 
-X = df.drop(['sentiment', 'id'], axis=1)
+X = df.drop(['sentiment'], axis=1)
 y = df['sentiment']
 
 model = xgb.XGBClassifier()

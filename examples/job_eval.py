@@ -22,7 +22,7 @@ t0 = time.time()
 df = datapot.transform(data, verbose=True)
 print('transform time:', time.time()-t0)
 
-X = df.drop(['SalaryNormalized', 'LocationNormalized', 'Id'], axis=1)
+X = df.drop(['SalaryNormalized', 'Id'], axis=1)
 y = pd.qcut(df['SalaryNormalized'].values, q=2, labels=[0,1]).ravel()
 
 model = xgb.XGBClassifier()

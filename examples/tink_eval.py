@@ -24,7 +24,6 @@ datapot = dp.DataPot()
 t0 = time.time()
 datapot.fit(data)
 print('fit time:', time.time()-t0)
-datapot.remove_transformer('living_region', 0)
 datapot.remove_transformer('open_account_flg', 1)
 
 t0 = time.time()
@@ -32,7 +31,6 @@ df = datapot.transform(data, verbose=True)
 print('transform time:', time.time()-t0)
 
 X = df.drop([
-    'living_region',
     'open_account_flg_one_hot0',
     'open_account_flg_one_hot1',
 ], axis=1)

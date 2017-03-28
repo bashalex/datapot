@@ -63,7 +63,7 @@ class BaseTextTransformer(BaseTransformer):
             self.confidence = max(self.confidence - NON_STRING_PENALTY, 0)
             return False
 
-        if len(feature_value) <= NORMAL_TEXT_MIN_SIZE and len(self.space_symbol.findall(feature_value)) > 2:
+        if len(feature_value) <= NORMAL_TEXT_MIN_SIZE or len(self.space_symbol.findall(feature_value)) <= 2:
             self.confidence = max(self.confidence - SMALL_STRING_LENGHT_PENALTY, 0)
             return False
 
