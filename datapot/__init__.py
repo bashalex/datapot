@@ -127,7 +127,9 @@ class DataPot:
             row = []
             for _field, _transformers in self.__fields.items():
                 new_features = self.__generate_feature(obj_fields, _field, _transformers)
-                if isinstance(new_features, list):
+                if new_features is None:
+                    continue
+                elif isinstance(new_features, list):
                     row += new_features
                 else:
                     row.append(new_features)
@@ -167,9 +169,6 @@ class DataPot:
 
         result = []
         for _field, _transformers in self.__fields.items():
-            if len(_transformers) == 0:
-                result.append(_field)
-                continue
             for _transformer in _transformers:
                 suffixes = _transformer.names()
                 if isinstance(suffixes, list):
@@ -202,7 +201,7 @@ class DataPot:
         value = self.__extract_value(obj, field.split('.'))
 
         if len(transformers) == 0:
-            return value  # nothing to apply
+            return None  # nothing to apply
 
         res = []
 
