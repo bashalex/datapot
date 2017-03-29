@@ -1,10 +1,10 @@
 from .base_transformer import BaseTransformer
 
-CONFIDENCE_PENALTY = 0.1
-CONFIDENCE_REWARD = 0.1
+
+VALIDATE_SMOOTHNESS_CONSTANT = 0.1
 
 
-class TestBoolTransformer(BaseTransformer):
+class BoolTransformer(BaseTransformer):
     """Replaces 'False' and 'True' with zeros and ones"""
 
     @staticmethod
@@ -12,26 +12,29 @@ class TestBoolTransformer(BaseTransformer):
         return False
 
     def __str__(self):
-        return 'TestBoolToIntTransformer'
+        return 'BoolToIntTransformer'
 
     def __repr__(self):
         return self.__str__()
 
     def __init__(self):
-        # here could be some specific parameters
-        # for this particular transformer
-        pass
+        self.valid_number = 0.
+        self.all_number = 0.
 
     def names(self):
         return 'binary'
 
-    def validate(self, field, value):
-        if not isinstance(value, bool):
-            self.confidence = max(self.confidence - CONFIDENCE_PENALTY, 0)
-            return False
 
-        self.confidence = min(self.confidence + CONFIDENCE_REWARD, 1)
-        return True
+    def validate(self, field, value):
+        is_valid_value = False
+        if isinstance(value, bool):
+            is_valid_value = True
+            self.valid_number += 1
+        self.all_number += 1
+        smooth_valid_number = self.valid_number + VALIDATE_SMOOTHNESS_CONSTANT
+        smooth_all_number = self.all_number + VALIDATE_SMOOTHNESS_CONSTANT
+        self.confidence = smooth_valid_number / smooth_all_number
+        return is_valid_value
 
     def fit(self, all_values):
         # do nothing

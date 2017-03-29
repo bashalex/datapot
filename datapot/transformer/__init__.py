@@ -1,5 +1,5 @@
-from .boolean_transformer import TestBoolTransformer
-from .complex_transformer import TestComplexTransformer
+from .boolean_transformer import BoolTransformer
+from .complex_transformer import ComplexTransformer
 from .text_transformer import TfidfTransformer
 from .timeseries_transformer import TimeSeriesTransformer
 # from .text.text_transformer import Word2VecTransformer # It doesn't work now
@@ -7,9 +7,9 @@ from .timeseries_transformer import TimeSeriesTransformer
 from .category_transformer import SVDOneHotTransformer
 
 __all__ = [
-    TestBoolTransformer,
+    BoolTransformer,
     # TimestampTransformer, # It doesn't work now
-    TestComplexTransformer,
+    ComplexTransformer,
     TfidfTransformer,
     SVDOneHotTransformer,
     TimeSeriesTransformer
