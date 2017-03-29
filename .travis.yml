@@ -20,4 +20,7 @@ install:
   - python -m nltk.downloader stopwords
 script:
   - python simple_test.py
+  - travis_wait 30 python examples/imdb_eval.py
+  - travis_wait 30 python examples/tink_eval.py
+  - travis_wait 30 python examples/job_eval.py
 #  - for script in ./benchmark/*.sh; do $script; done
