@@ -27,6 +27,7 @@ print(df)
 y = df['rating']
 X = df.drop('rating', axis=1)
 
+
 # evaluate prediction score using xgboost
 model = xgb.XGBRegressor()
 print(cross_val_score(model, X, y, cv=2))

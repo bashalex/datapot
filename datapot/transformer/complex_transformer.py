@@ -52,7 +52,7 @@ class ComplexTransformer(BaseTransformer):
                 return False
 
         # self.confidence = min(self.confidence + CONFIDENCE_REWARD, 1)
-        self.all_number += 1
+        self.valid_number += 1
         self.confidence = self.valid_number / self.all_number
         return True
 
