@@ -60,7 +60,14 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
         return 'SVDOneHotTransformer'
 
     def names(self):
-        return ['one_hot' + str(i) for i in range(self._n_components)]
+        if self.apply_dimension_reduction:
+            return ['one_hot' + str(i) for i in range(self._n_components)]
+        else:
+            names = [''] * len(self.features)
+            for category, number in self.features.items():
+                names[number] = str(category)
+            return names
+
 
     def fit(self, all_values):
         # TODO: what if value is not hashable

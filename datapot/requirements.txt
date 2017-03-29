@@ -1,9 +1,0 @@
-pandas
-numpy
-sklearn
-iso639
-langdetect
-gensim
-nltk
-tsfresh
-dateutil

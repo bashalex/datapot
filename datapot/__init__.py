@@ -127,7 +127,9 @@ class DataPot:
             row = []
             for _field, _transformers in self.__fields.items():
                 new_features = self.__generate_feature(obj_fields, _field, _transformers)
-                if isinstance(new_features, list):
+                if new_features is None:
+                    continue
+                elif isinstance(new_features, list):
                     row += new_features
                 else:
                     row.append(new_features)
@@ -159,17 +161,20 @@ class DataPot:
         """
         :return: list of all feature names after transformation
         """
+        def format_field_name(field, suffix):
+            # we may have some problem with unicode non-ascii characters
+            if suffix == '':
+                return str(field)
+            return '{}_{}'.format(field, suffix)
+
         result = []
         for _field, _transformers in self.__fields.items():
-            if len(_transformers) == 0:
-                result.append(_field)
-                continue
             for _transformer in _transformers:
                 suffixes = _transformer.names()
                 if isinstance(suffixes, list):
-                    result += ['{}_{}'.format(_field, suffix) for suffix in suffixes]
+                    result += [format_field_name(_field, suffix) for suffix in suffixes]
                 else:
-                    result.append('{}_{}'.format(_field, suffixes))
+                    result.append(format_field_name(_field, suffixes))
         return result
 
     def __fit_transformers(self, data, verbose):
@@ -196,7 +201,7 @@ class DataPot:
         value = self.__extract_value(obj, field.split('.'))
 
         if len(transformers) == 0:
-            return value  # nothing to apply
+            return None  # nothing to apply
 
         res = []
 

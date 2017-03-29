@@ -26,6 +26,7 @@ setup(name='datapot',
           'nltk',
           'tsfresh',
           'python-dateutil',
+          'fastnumbers',
           'pystemmer',
       ],
       classifiers=[
