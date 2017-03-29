@@ -24,17 +24,16 @@ datapot = dp.DataPot()
 t0 = time.time()
 datapot.fit(data)
 print('fit time:', time.time()-t0)
-datapot.remove_transformer('open_account_flg', 1)
+datapot.remove_transformer('open_account_flg', 0)
 
 t0 = time.time()
 df = datapot.transform(data, verbose=True)
 print('transform time:', time.time()-t0)
 
 X = df.drop([
-    'open_account_flg_one_hot0',
-    'open_account_flg_one_hot1',
+    'open_account_flg',
 ], axis=1)
-y = df['open_account_flg_one_hot1']
+y = df['open_account_flg']
 
 model = xgb.XGBClassifier()
 cv_score = cross_val_score(model, X, y, cv=5)
