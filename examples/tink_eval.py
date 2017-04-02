@@ -22,12 +22,16 @@ data = bz2.BZ2File('data/tink.jsonlines.bz2')
 datapot = dp.DataPot()
 
 t0 = time.time()
-datapot.fit(data)
-print('fit time:', time.time()-t0)
+datapot.detect(data)
+print('detect time:', time.time()-t0)
 datapot.remove_transformer('open_account_flg', 0)
 
 t0 = time.time()
-df = datapot.transform(data, verbose=True)
+datapot.fit(data, verbose=True)
+print('fit time:', time.time()-t0)
+
+t0 = time.time()
+df = datapot.transform(data)
 print('transform time:', time.time()-t0)
 
 X = df.drop([

@@ -10,8 +10,9 @@ from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 from Stemmer import Stemmer
 from six import string_types
-from sklearn.decomposition import NMF
+from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
+from time import time
 
 from .base_transformer import BaseTransformer
 
@@ -71,15 +72,14 @@ class BaseTextTransformer(BaseTransformer):
         return True
 
     def _clean_text(self, text):
-        # TODO: Do something with nltk.stopwords
-        if text is None:
+        if not isinstance(text, string_types):
             return NONE_TEXT
 
         text = self.alpha_numeric_regexp.sub(' ', text.lower())
         return text
 
     def _stemming(self, text):
-        self.stem = (lambda x: x) #if self.language == 'other' else SnowballStemmer(self.language).stem
+        self.stem = (lambda x: x) if self.language == 'other' else SnowballStemmer(self.language).stem
         return ' '.join(self.stem(word) for word in text.split() if word not in self.stopwords_set)
 
     def _clean_text_feature(self, text_feature):
@@ -103,7 +103,6 @@ class TfidfTransformer(BaseTextTransformer):
         self.apply_dimension_reduction = False
 
     def names(self):
-        # TODO: Change to return None
         if not self._nmf_params:
             return None
         return list(map(str, range(self._nmf_params['n_components'])))
@@ -117,29 +116,37 @@ class TfidfTransformer(BaseTextTransformer):
         )
         self._nmf_params = dict(
             n_components=N_COMPONENTS,
-            max_iter=NMF_ITERS,
-            init='nndsvd',
+            #max_iter=NMF_ITERS,
+            #init='nndsvd',
         )
         self._nmf_fit_number = NMF_FIT_NUMBER
 
     def fit(self, text_feature):
+        start = time()
         text_feature = self._clean_text_feature(text_feature)
+        print(time() - start)
         self._detect_parameters(text_feature)
-        text_feature = [self._stemming(text) for text in text_feature]
+        #text_feature = [self._stemming(text) for text in text_feature]
         self.vectorizer.set_params(**self._vectorizer_params)
         self.vectorizer.fit(text_feature)
+        print(time() - start)
         data_to_nmf_fit = self.vectorizer.transform(text_feature[:self._nmf_fit_number])
+        print(time() - start)
         self._nmf_params['n_components'] = min(self._nmf_params['n_components'], data_to_nmf_fit.shape[1])
-        self.nmf = NMF(**self._nmf_params).fit(data_to_nmf_fit)
+        self.nmf = TruncatedSVD(**self._nmf_params).fit(data_to_nmf_fit)
+        print(time() - start)
         return self
 
     def transform(self, text_feature):
-        if text_feature is None or isinstance(text_feature, string_types):
-            text_feature = [self._clean_text(text_feature)]
-        else:
-            text_feature = self._clean_text_feature(text_feature)
+        text_feature = [self._clean_text(text_feature)]
         vectorized_feature = self.vectorizer.transform(text_feature)
         return self.nmf.transform(vectorized_feature).tolist()[0]
+
+    def transform_batch(self, all_values):
+        texts = self._clean_text_feature(all_values)
+        vectorized_feature = self.vectorizer.transform(texts)
+        return self.nmf.transform(vectorized_feature)
+
 
 
 class Word2VecTransformer(BaseTextTransformer):
