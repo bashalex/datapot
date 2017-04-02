@@ -124,6 +124,9 @@ class DataPot:
         decoder = json.JSONDecoder()
         rows = []
 
+        #for _field, _transformers in self.__fields.items():
+
+
         self.__move_pointer_to_start(data)
         for obj in data:
             if isinstance(obj, bytes):
