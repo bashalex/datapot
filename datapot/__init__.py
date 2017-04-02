@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import bz2
 import io
 import json
+import numpy as np
 import pandas as pd
 from six import string_types
 from future.builtins import *
@@ -122,10 +123,15 @@ class DataPot:
 
     def transform(self, data):
         decoder = json.JSONDecoder()
-        rows = []
+        columns = []
 
-        #for _field, _transformers in self.__fields.items():
-
+        for _field, _transformers in self.__fields.items():
+            if not len(_transformers):
+                continue
+            all_values = self.__extract_all_values(data, _field.split('.'))
+            for _transformer in _transformers:
+                columns.append(_transformer.transform_batch(all_values))
+        """
 
         self.__move_pointer_to_start(data)
         for obj in data:
@@ -144,11 +150,13 @@ class DataPot:
             rows.append(row)
         self.__move_pointer_to_start(data)
 
+        """
+
         # get all feature names
         names = self.__all_features_names()
 
         # convert list to DataFrame
-        return pd.DataFrame(data=rows, columns=names)
+        return pd.DataFrame(data=np.hstack(columns), columns=names)
 
     def fit_transform(self, data, verbose=False):
         return self.fit(data, verbose=verbose).transform(data)
@@ -244,6 +252,7 @@ class DataPot:
         """
         decoder = json.JSONDecoder()
         result = []
+        self.__move_pointer_to_start(data)
         for obj in data:
             if isinstance(obj, bytes):
                 obj = obj.decode('utf8')

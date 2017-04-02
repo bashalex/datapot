@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function
 
 from abc import ABCMeta, abstractmethod
 
+import numpy as np
+
 INITIAL_CONFIDENCE = 0.5
 
 
@@ -68,7 +70,15 @@ class BaseTransformer:
         :param values:  values iterator from particular field in json file
         :return:
         """
-        return [self.transform(value) for value in all_values]
+        rows = [self.transform(value) for value in all_values]
+        if not len(rows):
+            return []
+        if isinstance(rows[0], (list, tuple, np.ndarray)):
+            return rows
+        else:
+            return np.array(rows).reshape(-1, 1)
+
+
 
 
     @abstractmethod

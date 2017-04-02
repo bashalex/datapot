@@ -106,6 +106,20 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
         else:
             return feature_array[0].tolist()
 
+    def transform_batch(self, all_values):
+        def is_encoded(value):
+            if not isinstance(value, collections.Hashable) or value not in self.features:
+                return False
+            return True
+        all_values = [[self.features[value] if is_encoded(value) else len(self.features)]
+                      for value in all_values]
+        feature_array = self.one_hot_encoder.transform(all_values)
+        if self.apply_dimension_reduction:
+            return self.dim_reducer.transform(feature_array)
+        else:
+            return feature_array
+
+
 
 class CountersTransformer(BaseCategoricalTransformer):
     """Counters transformer."""
