@@ -15,10 +15,9 @@ import time
 import xgboost as xgb
 from sklearn.model_selection import cross_val_score
 import datapot as dp
-from datapot.datasets import fetch_tinkoff
+from datapot.datasets import load_tinkoff
 
-fetch_tinkoff()
-data = bz2.BZ2File('data/tink.jsonlines.bz2')
+data = load_tinkoff()
 datapot = dp.DataPot()
 
 t0 = time.time()
