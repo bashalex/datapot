@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import bz2
 import io
 import json
+import numpy as np
 import pandas as pd
 from six import string_types
 from future.builtins import *
@@ -32,7 +33,7 @@ class DataPot:
             ' - number of new features: {n_new_features}\n'
             'features to transform: \n'
         ).format(
-            n_old_features=len(self.__fields.keys()),
+            n_old_features=len(self.__fields),
             n_new_features='Unknown' if self.__num_new_features is None else self.__num_new_features
         )
 
@@ -62,7 +63,7 @@ class DataPot:
             raise IndexError('transformer with given index doesn\'t exist')
         del transformers[transformer_index]
 
-    def fit(self, data, limit=50):
+    def detect(self, data, limit=50):
         """
         :param data: iterable that contains strings representing Json object
                      OR file where every line contains one Json object
@@ -96,18 +97,15 @@ class DataPot:
         self.__move_pointer_to_start(data)
         self.__num_new_features = self.__num_of_new_features()
 
-    def transform(self, data, verbose=False, drop_non_numerical=False):
+        return self
+
+    def fit(self, data, verbose=False):
         """
-        :param drop_non_numerical: whether to drop all columns with non-numerical types from the final DataFrame
         :param verbose: if true prints progress
-        :important: this method calls both 'fit'
-                    and 'transform' methods of transformers
         :param data: iterable that contains strings representing Json object
                      OR file where every line contains one Json object
-        :return: generated DataFrame
+        :return: fitted instance
         """
-        decoder = json.JSONDecoder()
-        rows = []
 
         if verbose:
             print('fit transformers...')
@@ -116,8 +114,24 @@ class DataPot:
         if verbose:
             print('fit transformers...OK')
 
-        # get all feature names
-        names = self.__all_features_names()
+        self.__num_new_features = self.__num_of_new_features()
+
+        if verbose:
+            print('num of new features:', self.__num_new_features)
+
+        return self
+
+    def transform(self, data):
+        decoder = json.JSONDecoder()
+        columns = []
+
+        for _field, _transformers in self.__fields.items():
+            if not len(_transformers):
+                continue
+            all_values = self.__extract_all_values(data, _field.split('.'))
+            for _transformer in _transformers:
+                columns.append(_transformer.transform_batch(all_values))
+        """
 
         self.__move_pointer_to_start(data)
         for obj in data:
@@ -136,18 +150,16 @@ class DataPot:
             rows.append(row)
         self.__move_pointer_to_start(data)
 
-        # save final number of features
-        self.__num_new_features = len(rows[0])
+        """
 
-        if verbose:
-            print('num of new features:', self.__num_new_features)
+        # get all feature names
+        names = self.__all_features_names()
 
         # convert list to DataFrame
-        df = pd.DataFrame(data=rows, columns=names)
+        return pd.DataFrame(data=np.hstack(columns), columns=names)
 
-        if drop_non_numerical:
-            df = df.select_dtypes(include=['floating', 'int64'])
-        return df
+    def fit_transform(self, data, verbose=False):
+        return self.fit(data, verbose=verbose).transform(data)
 
     def __move_pointer_to_start(self, data):
         try:
@@ -240,6 +252,7 @@ class DataPot:
         """
         decoder = json.JSONDecoder()
         result = []
+        self.__move_pointer_to_start(data)
         for obj in data:
             if isinstance(obj, bytes):
                 obj = obj.decode('utf8')
