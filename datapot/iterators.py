@@ -2,7 +2,12 @@ import bz2
 import io
 import json
 
+
 def create_full_iterator(data):
+    if isinstance(data, (list, tuple)):
+        print(data)
+        return identity_iterator
+
     if isinstance(data, io.IOBase) and hasattr(data, 'name'):
         filename = data.name
     elif isinstance(data, bz2.BZ2File):
@@ -36,3 +41,6 @@ def jsonlines_file_iterator(data):
         obj = decoder.decode(obj)
         yield obj
 
+def identity_iterator(data):
+   for obj in data:
+       yield obj

@@ -4,10 +4,10 @@ import xgboost as xgb
 import datapot as dp
 
 dummy_data = [
-    '{"name": "Gilbert", "wins": [3, 4, 12], "rating": 32}',
-    '{"name": "Alexa", "wins": [1, 2, 5, 7], "rating": 24}',
-    '{"name": "May", "wins": [], "rating": 1240}',
-    '{"name": "Deloise", "wins": [6, 8, 9, 10, 11], "rating": 25}',
+    {"name": "Gilbert", "wins": [3, 4, 12], "rating": 32},
+    {"name": "Alexa", "wins": [1, 2, 5, 7], "rating": 24},
+    {"name": "May", "wins": [], "rating": 1240},
+    {"name": "Deloise", "wins": [6, 8, 9, 10, 11], "rating": 25},
 ]
 
 # create DataPot instance
