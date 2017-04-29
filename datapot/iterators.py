@@ -5,10 +5,9 @@ import json
 
 def create_full_iterator(data):
     if isinstance(data, (list, tuple)):
-        print(data)
         return identity_iterator
 
-    if isinstance(data, io.IOBase) and hasattr(data, 'name'):
+    if hasattr(data, 'name'):
         filename = data.name
     elif isinstance(data, bz2.BZ2File):
         filename = data._fp.name
