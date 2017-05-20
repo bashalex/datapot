@@ -124,17 +124,13 @@ class TfidfTransformer(BaseTextTransformer):
     def fit(self, text_feature):
         start = time()
         text_feature = self._clean_text_feature(text_feature)
-        print(time() - start)
         self._detect_parameters(text_feature)
         #text_feature = [self._stemming(text) for text in text_feature]
         self.vectorizer.set_params(**self._vectorizer_params)
         self.vectorizer.fit(text_feature)
-        print(time() - start)
         data_to_nmf_fit = self.vectorizer.transform(text_feature[:self._nmf_fit_number])
-        print(time() - start)
         self._nmf_params['n_components'] = min(self._nmf_params['n_components'], data_to_nmf_fit.shape[1])
         self.nmf = TruncatedSVD(**self._nmf_params).fit(data_to_nmf_fit)
-        print(time() - start)
         return self
 
     def transform(self, text_feature):

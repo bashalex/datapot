@@ -1,4 +1,5 @@
 import bz2
+import csv
 import io
 import json
 
@@ -19,6 +20,8 @@ def create_full_iterator(data):
         return jsonlines_file_iterator
     if 'jsonlines' in filename_parts[-2:]:
         return jsonlines_file_iterator
+    if filename_parts[-1] == 'csv':
+        return csv_file_iterator
 
 
 def _move_pointer_to_start(data):
@@ -38,6 +41,12 @@ def jsonlines_file_iterator(data):
         if isinstance(obj, bytes):
             obj = obj.decode('utf-8')
         obj = decoder.decode(obj)
+        yield obj
+
+def csv_file_iterator(data):
+    _move_pointer_to_start(data)
+    reader = csv.DictReader(data)
+    for obj in reader:
         yield obj
 
 def identity_iterator(data):
