@@ -14,6 +14,7 @@ from .iterators import create_full_iterator
 
 CONFIDENCE_LEVEL_TO_ACCEPT = 0.7
 CONFIDENCE_LEVEL_TO_BEGIN = 0.5
+TOO_MANY_VALUES_IN_DICT_TO_PARSE = 100
 
 
 class DataPot:
@@ -55,6 +56,7 @@ class DataPot:
         if field_name not in self.__fields:
             raise KeyError('field with the given name doesn\'t exist')
         self.__fields[field_name].append(transformer)
+        return self
 
     def remove_transformer(self, field_name, transformer_index):
         if field_name not in self.__fields:
@@ -63,6 +65,7 @@ class DataPot:
         if transformer_index >= len(transformers):
             raise IndexError('transformer with given index doesn\'t exist')
         del transformers[transformer_index]
+        return self
 
     def detect(self, data, limit=50):
         """
@@ -131,7 +134,7 @@ class DataPot:
         names = self.__all_features_names()
 
         # convert list to DataFrame
-        return pd.DataFrame(data=np.hstack(columns), columns=names)
+        return pd.DataFrame(data=np.hstack(columns), columns=names).convert_objects(convert_numeric=True)
 
     def fit_transform(self, data, verbose=False):
         return self.fit(data, verbose=verbose).transform(data)
@@ -229,16 +232,11 @@ class DataPot:
         :param value: value in the field
         """
         final_obj = self.__ask_transformers(name, value)
-        if final_obj:
-            return  # doesn't make sense to parse further
 
-        if isinstance(value, list):
-            for i, obj in enumerate(value):
-                self.__parse(name + '.{}'.format(i), obj)
-        elif isinstance(value, dict):
+        if isinstance(value, dict) and len(value) < TOO_MANY_VALUES_IN_DICT_TO_PARSE:
             for _name, _value in value.items():
                 self.__parse(name + '.' + _name, _value)
-        else:
+        elif not final_obj:
             # no one transformer is suitable for the given field
             # but we can add it to the list of fields
             # in order to leave it in final dataset though
