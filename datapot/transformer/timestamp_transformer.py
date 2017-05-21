@@ -1,7 +1,6 @@
 import time
-from datetime import *
 from time import mktime
-
+from datetime import *
 from dateutil.parser import *
 
 from .base_transformer import BaseTransformer

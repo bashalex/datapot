@@ -6,6 +6,7 @@ from .timeseries_transformer import TimeSeriesTransformer
 from .timestamp_transformer import TimestampTransformer
 from .category_transformer import SVDOneHotTransformer
 
+
 __all__ = [
     BoolTransformer,
     TimestampTransformer,
@@ -13,5 +14,5 @@ __all__ = [
     TfidfTransformer,
     SVDOneHotTransformer,
     TimeSeriesTransformer,
-    NumericTransformer
+    NumericTransformer,
 ]
