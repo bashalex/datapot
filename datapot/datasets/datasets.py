@@ -20,7 +20,7 @@ def __fetch_dataset(url, filename):
         urlretrieve(url, DATA_HOME+filename)
 
 def __fetch_mallat():
-    __fetch_dataset(IMDB_URL, IMDB_FILENAME)
+    __fetch_dataset(MALLAT_URL, MALLAT_FILENAME)
 
 def __fetch_imdb():
     __fetch_dataset(IMDB_URL, IMDB_FILENAME)
