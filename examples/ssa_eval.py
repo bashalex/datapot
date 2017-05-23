@@ -22,7 +22,7 @@ print('fit time:', time.time()-t0)
 
 
 t0 = time.time()
-df = datapot.transform(data, verbose=True)
+df = datapot.transform(data)
 print('transform time:', time.time()-t0)
 X = df.drop(['class'], axis=1)
 y = df['class']
