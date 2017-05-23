@@ -73,6 +73,7 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
         # TODO: what if value is not hashable
         self.features = dict()
         self.apply_dimension_reduction = False
+
         for value in all_values:
             if value not in self.features:
                 self.features[value] = len(self.features)
@@ -84,6 +85,7 @@ class SVDOneHotTransformer(BaseCategoricalTransformer):
             self.apply_dimension_reduction = True
             self.one_hot_encoder = OneHotEncoder(sparse=True, handle_unknown='ignore')
             self._n_components = SVD_COMPONENTS
+
         self.one_hot_encoder.fit([[self.features[value]] for value in all_values])
 
         if self.apply_dimension_reduction:

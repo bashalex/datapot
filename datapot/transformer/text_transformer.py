@@ -12,7 +12,7 @@ from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 from Stemmer import Stemmer
 from six import string_types
-from sklearn.decomposition import TruncatedSVD
+from sklearn.decomposition import TruncatedSVD, NMF
 from sklearn.feature_extraction.text import TfidfVectorizer
 from time import time
 
@@ -117,8 +117,8 @@ class TfidfTransformer(BaseTextTransformer):
         )
         self._nmf_params = dict(
             n_components=N_COMPONENTS,
-            #max_iter=NMF_ITERS,
-            #init='nndsvd',
+            max_iter=NMF_ITERS,
+            init='nndsvd',
         )
         self._nmf_fit_number = NMF_FIT_NUMBER
 
@@ -131,7 +131,7 @@ class TfidfTransformer(BaseTextTransformer):
         self.vectorizer.fit(text_feature)
         data_to_nmf_fit = self.vectorizer.transform(text_feature[:self._nmf_fit_number])
         self._nmf_params['n_components'] = min(self._nmf_params['n_components'], data_to_nmf_fit.shape[1])
-        self.nmf = TruncatedSVD(**self._nmf_params).fit(data_to_nmf_fit)
+        self.nmf = NMF(**self._nmf_params).fit(data_to_nmf_fit)
         return self
 
     def transform(self, text_feature):
