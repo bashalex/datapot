@@ -1,14 +1,14 @@
 from .base_transformer import BaseTransformer
 import numpy as np
 TIME_SERIES_MIN_LENGTH = 15
-CONFIDENCE_PENALTY = 0.1
+CONFIDENCE_PENALTY = 0.0
 
 
 class SSATransformer(BaseTransformer):
 
     @staticmethod
     def requires_fit():
-        return False
+        return True
 
     def __str__(self):
         return 'SSA_Decomposition'
@@ -17,9 +17,8 @@ class SSATransformer(BaseTransformer):
         return self.__str__()
 
     def __init__(self):
-        # here could be some specific parameters
-        # for this particular transformer
-        pass
+        self.maximum_size = None
+        self.window_size = None
 
     @classmethod
     def _is_numeric(self, obj):
@@ -55,7 +54,8 @@ class SSATransformer(BaseTransformer):
 
     def fit(self, all_values):
         self.maximum_size = len(max(all_values, key=len))
-        self.window_size = self.maximum_size/2
+        self.window_size = self.maximum_size//2
+        return self
 
     def transform(self, value):
         l = self.window_size
@@ -64,15 +64,18 @@ class SSATransformer(BaseTransformer):
         n = len(value)
 
         #construct the trajectory matrix
-        X = np.matrix([value[i:i+l] for i in range(0, n-l)])
+        X = np.array([value[i:i+l] for i in range(0, n-l)])
         C = X.T*X*1/l
         V, L, VT = np.linalg.svd(C)
 
         #select the most significant components
-        V_hat = V[np.argsort(L)[:n/2:-1]]
-        X_R = V_hat*V_hat.T*X
-        offset = x.strides
+        num_of_components = len(L)
+        k = num_of_components//2
+        k_top_components = np.argsort(L)[num_of_components-k:]
+        V_hat = V[k_top_components]
+        U_hat = V_hat.dot(X)
+        X_R = V_hat*U_hat
 
         #sum over anti-diagonals to reconstruct the array
-        ret = [np.sum(X_R.flatten()[0, i:i*l+1:l]) for i in range(n)]
+        ret = [np.sum(X_R.flatten()[i:i*l+1:l]) for i in range(n)]
         return ret
