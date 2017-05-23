@@ -14,11 +14,15 @@ data = load_job_salary()
 datapot = dp.DataPot()
 
 t0 = time.time()
-datapot.fit(data)
+datapot.detect(data)
+print('detect time:', time.time()-t0)
+
+t0 = time.time()
+datapot.fit(data, verbose=True)
 print('fit time:', time.time()-t0)
 
 t0 = time.time()
-df = datapot.transform(data, verbose=True)
+df = datapot.transform(data)
 print('transform time:', time.time()-t0)
 
 X = df.drop(['SalaryNormalized', 'Id'], axis=1)

@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function
 
 from abc import ABCMeta, abstractmethod
 
+import numpy as np
+
 INITIAL_CONFIDENCE = 0.5
 
 
@@ -47,8 +49,8 @@ class BaseTransformer:
 
     @abstractmethod
     def fit(self, all_values):
-        """
-        To Override
+        """ To Override
+
         :param all_values: list of particular values from every object in data
                            fits itself using given values
         """
@@ -61,6 +63,23 @@ class BaseTransformer:
         :return list of generated values
         """
         pass
+
+    def transform_batch(self, all_values):
+        """
+
+        :param values:  values iterator from particular field in json file
+        :return:
+        """
+        rows = [self.transform(value) for value in all_values]
+        if not len(rows):
+            return []
+        if isinstance(rows[0], (list, tuple, np.ndarray)):
+            return rows
+        else:
+            return np.array(rows).reshape(-1, 1)
+
+
+
 
     @abstractmethod
     def names(self):

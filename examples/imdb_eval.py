@@ -19,13 +19,17 @@ data = load_imdb()
 datapot = dp.DataPot()
 
 t0 = time.time()
-datapot.fit(data)
-print('fit time:', time.time()-t0)
+datapot.detect(data)
+print('detect time:', time.time()-t0)
 
 datapot.remove_transformer('sentiment', 0)
 
 t0 = time.time()
-df = datapot.transform(data, verbose=True)
+datapot.fit(data, verbose=True)
+print('fit time:', time.time()-t0)
+
+t0 = time.time()
+df = datapot.transform(data)
 print('transform time:', time.time()-t0)
 X = df.drop(['sentiment'], axis=1)
 y = df['sentiment']

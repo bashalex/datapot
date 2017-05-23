@@ -15,12 +15,12 @@ data = dp.DataPot()
 print(data)
 
 # fit it with data
-data.fit(dummy_data)
+data.detect(dummy_data)
 print(data)
 print(data.fields())
 
 # apply transformers
-df = data.transform(dummy_data, drop_non_numerical=True)
+df = data.fit_transform(dummy_data)
 print(df)
 
 # we are going to predict rating
