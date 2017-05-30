@@ -68,7 +68,7 @@ extraction.
 Examples
 --------
 
-Look for `more examples <https://github.com/bashalex/datapot/tree/master/examples/>`__ of using Datapot with
+Look for `more examples <https://github.com/bashalex/datapot/tree/master/notebooks/>`__ of using Datapot with
 different datasets and more Transformer specific.
 
 Features
