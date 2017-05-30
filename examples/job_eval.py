@@ -8,10 +8,9 @@ import xgboost as xgb
 import pandas as pd
 from sklearn.model_selection import cross_val_score
 import datapot as dp
-from datapot.datasets import fetch_job_salary
+from datapot.datasets import load_job_salary
 
-fetch_job_salary()
-data = bz2.BZ2File('data/job.jsonlines.bz2')
+data = load_job_salary()
 datapot = dp.DataPot()
 
 t0 = time.time()

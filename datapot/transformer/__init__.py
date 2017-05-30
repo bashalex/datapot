@@ -5,6 +5,7 @@ from .text_transformer import TfidfTransformer
 from .timeseries_transformer import TimeSeriesTransformer
 from .timestamp_transformer import TimestampTransformer
 from .category_transformer import SVDOneHotTransformer
+from .ssa_transformer import SSATransformer
 
 
 __all__ = [
@@ -14,5 +15,6 @@ __all__ = [
     TfidfTransformer,
     SVDOneHotTransformer,
     TimeSeriesTransformer,
-    NumericTransformer,
+    SSATransformer,
+    NumericTransformer
 ]

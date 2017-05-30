@@ -13,10 +13,9 @@ import time
 import xgboost as xgb
 from sklearn.model_selection import cross_val_score
 import datapot as dp
-from datapot.datasets import fetch_imdb
+from datapot.datasets import load_imdb
 
-fetch_imdb()
-data = bz2.BZ2File('data/imdb.jsonlines.bz2')
+data = load_imdb()
 datapot = dp.DataPot()
 
 t0 = time.time()
@@ -32,7 +31,6 @@ print('fit time:', time.time()-t0)
 t0 = time.time()
 df = datapot.transform(data)
 print('transform time:', time.time()-t0)
-
 X = df.drop(['sentiment'], axis=1)
 y = df['sentiment']
 
