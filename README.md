@@ -45,11 +45,12 @@ To **create a Datapot** object simply write the following:
 - fit()
 - transform()
 
-Method `fit(self, data, limit)` goes through the first  N  objects (N = limit), passes the possible features to Transformers. Each Transformer evaluates if a feature from current field or a number of fields can be created. As a result a dict of features  and Transformers is created.
+Method `detect(self, data, limit)` goes through the first N  objects (N = limit), passes the possible features to Transformers. Each Transformer evaluates if a feature from current field or a number of fields can be created. As a result a dict of features and Transformers is created. Method  `fit(self, data, limit)` trains the detected Transformers on the given set if it is required. 
 
 To apply `fit()` to JSON file:
 ```python
 >>> f = open('data/matches_test.jsonlines', 'r')
+>>> data.detect(f)
 >>> data.fit(f, limit=100)
 >>> data
 DataPot class instance
