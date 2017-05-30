@@ -10,9 +10,11 @@ from future.builtins import *
 
 from . import transformer
 from .transformer.base_transformer import BaseTransformer
+from .iterators import create_full_iterator
 
 CONFIDENCE_LEVEL_TO_ACCEPT = 0.7
 CONFIDENCE_LEVEL_TO_BEGIN = 0.5
+TOO_MANY_VALUES_IN_DICT_TO_PARSE = 100
 
 
 class DataPot:
@@ -54,6 +56,7 @@ class DataPot:
         if field_name not in self.__fields:
             raise KeyError('field with the given name doesn\'t exist')
         self.__fields[field_name].append(transformer)
+        return self
 
     def remove_transformer(self, field_name, transformer_index):
         if field_name not in self.__fields:
@@ -62,6 +65,7 @@ class DataPot:
         if transformer_index >= len(transformers):
             raise IndexError('transformer with given index doesn\'t exist')
         del transformers[transformer_index]
+        return self
 
     def detect(self, data, limit=50):
         """
@@ -73,15 +77,10 @@ class DataPot:
         self.__num_new_features = None
         self.__fields = {}
 
-        decoder = json.JSONDecoder()
+        iterator = create_full_iterator(data)
 
-        self.__move_pointer_to_start(data)
-        for iteration, obj in enumerate(data):
-            # decode string to dictionary
-            if isinstance(obj, bytes):
-                obj = obj.decode('utf8')
-            obj_fields = decoder.decode(obj)
-            for name, value in obj_fields.items():
+        for iteration, obj in enumerate(iterator(data)):
+            for name, value in obj.items():
                 self.__parse(name, value)
             if iteration == limit:
                 break
@@ -94,7 +93,6 @@ class DataPot:
                 else:
                     accepted_transformers_number += 1
 
-        self.__move_pointer_to_start(data)
         self.__num_new_features = self.__num_of_new_features()
 
         return self
@@ -131,43 +129,15 @@ class DataPot:
             all_values = self.__extract_all_values(data, _field.split('.'))
             for _transformer in _transformers:
                 columns.append(_transformer.transform_batch(all_values))
-        """
-
-        self.__move_pointer_to_start(data)
-        for obj in data:
-            if isinstance(obj, bytes):
-                obj = obj.decode('utf8')
-            obj_fields = decoder.decode(obj)
-            row = []
-            for _field, _transformers in self.__fields.items():
-                new_features = self.__generate_feature(obj_fields, _field, _transformers)
-                if new_features is None:
-                    continue
-                elif isinstance(new_features, list):
-                    row += new_features
-                else:
-                    row.append(new_features)
-            rows.append(row)
-        self.__move_pointer_to_start(data)
-
-        """
 
         # get all feature names
         names = self.__all_features_names()
 
         # convert list to DataFrame
-        return pd.DataFrame(data=np.hstack(columns), columns=names)
+        return pd.DataFrame(data=np.hstack(columns), columns=names).convert_objects(convert_numeric=True)
 
     def fit_transform(self, data, verbose=False):
         return self.fit(data, verbose=verbose).transform(data)
-
-    def __move_pointer_to_start(self, data):
-        try:
-            file_types = (file, io.IOBase, bz2.BZ2File)
-        except NameError:
-            file_types = (io.IOBase, bz2.BZ2File, )
-        if isinstance(data, file_types):
-            data.seek(0, 0)  # move pointer to the beginning of the file
 
     def __all_features_names(self):
         """
@@ -203,7 +173,6 @@ class DataPot:
             for i in range(len(x[1])):
                 if not x[1][i].requires_fit():
                     continue
-                self.__move_pointer_to_start(data)
                 if values is None:
                     values = self.__extract_all_values(data, x[0].split('.'))
                 x[1][i].fit(values)
@@ -250,14 +219,10 @@ class DataPot:
         :return: list of extracted values from the given field
                  from all objects in data
         """
-        decoder = json.JSONDecoder()
         result = []
-        self.__move_pointer_to_start(data)
-        for obj in data:
-            if isinstance(obj, bytes):
-                obj = obj.decode('utf8')
-            obj_fields = decoder.decode(obj)
-            result.append(self.__extract_value(obj_fields, location))
+        iterator = create_full_iterator(data)
+        for obj in iterator(data):
+            result.append(self.__extract_value(obj, location))
         return result
 
     def __parse(self, name, value):
@@ -267,16 +232,11 @@ class DataPot:
         :param value: value in the field
         """
         final_obj = self.__ask_transformers(name, value)
-        if final_obj:
-            return  # doesn't make sense to parse further
 
-        if isinstance(value, list):
-            for i, obj in enumerate(value):
-                self.__parse(name + '.{}'.format(i), obj)
-        elif isinstance(value, dict):
+        if isinstance(value, dict) and len(value) < TOO_MANY_VALUES_IN_DICT_TO_PARSE:
             for _name, _value in value.items():
                 self.__parse(name + '.' + _name, _value)
-        else:
+        elif not final_obj:
             # no one transformer is suitable for the given field
             # but we can add it to the list of fields
             # in order to leave it in final dataset though
