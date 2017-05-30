@@ -15,7 +15,17 @@ The idea of Datapot is to make the process of data preparation and feature extra
 ## Usage
 
 
-**Install Datapot:**
+
+**Install Datapot**
+
+Using `pip`:
+
+```bash
+$ pip install datapot
+```
+
+Or clone DataPot repo:
+
 ```bash
 $ git clone https://github.com/bashalex/datapot.git
 $ cd datapot
@@ -31,6 +41,7 @@ To **create a Datapot** object simply write the following:
 
 
 #### DataPot has two main methods:
+- detect()
 - fit()
 - transform()
 
@@ -75,11 +86,16 @@ Datapot provides many ways of extracting features from JSON-s.
 
 Data types that can be processed:
  - Boolean 
+ - Numerical
  - Numerical array (transform array to their sum divided by average length of array in training set)
  - Time series (сalculate descriptive statistical properties of a given time series)
  - Timestamp  (date, time, day of week, day of month etc.)
  - Text (bag of words tf-idf, word2vec)
  - Categorial (one-hot encoding, dimension reduction)
+ 
+ Manually selected fields:
+ - Identity 
+ - Group Dimensionality Reduce (change the dimensionality of features in the same JSON field) 
 
 
 ## Authors
