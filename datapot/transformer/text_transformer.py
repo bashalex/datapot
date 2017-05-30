@@ -1,24 +1,25 @@
 import re
 
-import gensim.models.word2vec as Word2Vec
 import iso639
 import langdetect
 import numpy as np
+
+from gensim.models.word2vec import Word2Vec
+from gensim.models import KeyedVectors
 from langdetect.lang_detect_exception import LangDetectException
 from future.builtins import map, range, str
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 from Stemmer import Stemmer
 from six import string_types
-from sklearn.decomposition import TruncatedSVD
+from sklearn.decomposition import TruncatedSVD, NMF
 from sklearn.feature_extraction.text import TfidfVectorizer
 from time import time
 
 from .base_transformer import BaseTransformer
 
 NONE_TEXT = 'NoneNoneNone'
-WORD_2_VEC_DIR = '~/GoogleNews-vectors-negative300.bin'
-WORD_2_VEC_SIZE = 300
+WORD_2_VEC_SIZE = 100
 MAX_DICTIONARY_SIZE = 5000
 N_COMPONENTS = 12
 LANGUAGE_DETECTION_EXAMPLES = 10
@@ -116,25 +117,21 @@ class TfidfTransformer(BaseTextTransformer):
         )
         self._nmf_params = dict(
             n_components=N_COMPONENTS,
-            #max_iter=NMF_ITERS,
-            #init='nndsvd',
+            max_iter=NMF_ITERS,
+            init='nndsvd',
         )
         self._nmf_fit_number = NMF_FIT_NUMBER
 
     def fit(self, text_feature):
         start = time()
         text_feature = self._clean_text_feature(text_feature)
-        print(time() - start)
         self._detect_parameters(text_feature)
         #text_feature = [self._stemming(text) for text in text_feature]
         self.vectorizer.set_params(**self._vectorizer_params)
         self.vectorizer.fit(text_feature)
-        print(time() - start)
         data_to_nmf_fit = self.vectorizer.transform(text_feature[:self._nmf_fit_number])
-        print(time() - start)
         self._nmf_params['n_components'] = min(self._nmf_params['n_components'], data_to_nmf_fit.shape[1])
-        self.nmf = TruncatedSVD(**self._nmf_params).fit(data_to_nmf_fit)
-        print(time() - start)
+        self.nmf = NMF(**self._nmf_params).fit(data_to_nmf_fit)
         return self
 
     def transform(self, text_feature):
@@ -152,6 +149,18 @@ class TfidfTransformer(BaseTextTransformer):
 class Word2VecTransformer(BaseTextTransformer):
     """ Returns the average Word2Vec vectors for each text """
 
+    def __init__(self, word2vec_model_dir=None):
+        """Word2Vec transformer
+
+        :param word2vec_model_dir: if it is not None - the pretrained model will be used,
+                                   otherwise it will be trained during the fit procedure
+        """
+
+        self.language = None
+        self._params = {}
+        self.model_dir = word2vec_model_dir
+        self.vector_size = None
+
     def __str__(self):
         return 'Word2VecTransformer'
 
@@ -159,16 +168,30 @@ class Word2VecTransformer(BaseTextTransformer):
         return self.__str__()
 
     def names(self):
-        # TODO: Change to return None
-        return list(map(str, range(WORD_2_VEC_SIZE)))
+        if self.vector_size is None:
+            return None
+        return list(map(lambda i: 'w2c_{}'.format(i), range(self.vector_size)))
 
-    def _find_word2vec_model(self):
-        self.word2vec_model = Word2Vec.load_word2vec_format(WORD_2_VEC_DIR, binary=True)
+    def _get_word2vec_model(self, text_feature):
+        if self.model_dir is None:
+            from nltk.tokenize import sent_tokenize
+
+            sentences = [
+                self._clean_text(s).split()
+                for text in text_feature for s in sent_tokenize(text, language=self.language)
+            ]
+            self.word2vec_model = Word2Vec(sentences, size=WORD_2_VEC_SIZE)
+        else:
+            self.word2vec_model = KeyedVectors.load_word2vec_format(self.model_dir, binary=True)
 
     def _detect_parameters(self, text_feature):
         self._detect_number = LANGUAGE_DETECTION_EXAMPLES
         self._detect_language(text_feature)
-        self._find_word2vec_model()
+        self._get_word2vec_model(text_feature)
+        print(type(self.word2vec_model))
+        print(vars(self.word2vec_model))
+        print(dir(self.word2vec_model))
+        self.vector_size = self.word2vec_model.syn0.shape[1]
 
     def fit(self, text_feature):
         self._detect_parameters(text_feature)
