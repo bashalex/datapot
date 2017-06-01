@@ -36,7 +36,7 @@ To **create a Datapot** object simply write the following:
 
 ```python
 >>> import datapot as dp 
->>> data = dp.DataPot()
+>>> datapot = dp.DataPot()
 ```
 
 
@@ -45,33 +45,32 @@ To **create a Datapot** object simply write the following:
 - fit()
 - transform()
 
-Method `detect(self, data, limit)` goes through the first N  objects (N = limit), passes the possible features to Transformers. Each Transformer evaluates if a feature from current field or a number of fields can be created. As a result a dict of features and Transformers is created. Method  `fit(self, data, limit)` trains the detected Transformers on the given set if it is required. 
+Method `detect(data, limit)` goes through the first N  objects (N = limit), passes the possible features to Transformers. Each Transformer evaluates if a feature from current field or a number of fields can be created. As a result a dict of features and Transformers is created. Method  `fit(data)` trains the detected Transformers on the given set if it is required. 
 
 To apply `fit()` to JSON file:
 ```python
->>> f = open('data/matches_test.jsonlines', 'r')
->>> data.detect(f)
->>> data.fit(f, limit=100)
->>> data
+>>> f = open('datapot/data/job.jsonlines', 'r')
+>>> datapot.detect(f, limit=100)
+>>> datapot.fit(f)
 DataPot class instance
- - number of features without transformation: 806
- - number of new features: 315
+ - number of features without transformation: 9
+ - number of new features: 82
 features to transform: 
-    (u'players.0.gold_t', [ComplexTransformer])
-    (u'picks_bans.0.is_pick', [BoolToIntTransformer])
-    (u'players.0.kills_log.0.unit', [TfidfTransformer])
-    (u'players.1.xp_t', [ComplexTransformer])
-    (u'picks_bans.1.is_pick', [BoolToIntTransformer])
-    (u'players.1.kills_log.0.unit', [TfidfTransformer])
-    ...
+	('Id', [NumericTransformer])
+	('FullDescription', [TfidfTransformer])
+	('ContractType', [SVDOneHotTransformer])
+	('ContractTime', [SVDOneHotTransformer])
+	('Company', [SVDOneHotTransformer])
+	('Category', [SVDOneHotTransformer])
+	('SalaryNormalized', [NumericTransformer])
+
 ```
 
 Method `transform(self, data, verbose)` generates a pandas. DataFrame with new features that were detected on the fit() call. If parameter verbose is true, progress description is printed during the feature extraction.
 
 ```python
->>> df = data.transform(f, verbose=False)
-fit transformers...OK
-num of new features: 315
+>>> df = datapot.transform(f)
+num of new features: 82
 ```
 
 
