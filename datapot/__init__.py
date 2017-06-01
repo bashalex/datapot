@@ -236,6 +236,9 @@ class DataPot:
         if isinstance(value, dict) and len(value) < TOO_MANY_VALUES_IN_DICT_TO_PARSE:
             for _name, _value in value.items():
                 self.__parse(name + '.' + _name, _value)
+        elif isinstance(value, list) and len(value) < TOO_MANY_VALUES_IN_DICT_TO_PARSE:
+            for _index, _value in enumerate(value):
+                self.__parse(name + '.{}'.format(_index), _value)
         elif not final_obj:
             # no one transformer is suitable for the given field
             # but we can add it to the list of fields
