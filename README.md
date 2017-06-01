@@ -47,11 +47,11 @@ To **create a Datapot** object simply write the following:
 
 Method `detect(data, limit)` goes through the first N  objects (N = limit), passes the possible features to Transformers. Each Transformer evaluates if a feature from current field or a number of fields can be created. As a result a dict of features and Transformers is created. Method  `fit(data)` trains the detected Transformers on the given set if it is required. 
 
-To apply `fit()` to JSON file:
+To apply `fit(data)` to JSON file:
 ```python
->>> f = open('datapot/data/job.jsonlines', 'r')
->>> datapot.detect(f, limit=100)
->>> datapot.fit(f)
+>>> data = open('datapot/data/job.jsonlines', 'r')
+>>> datapot.detect(data, limit=100)
+>>> datapot.fit(data)
 DataPot class instance
  - number of features without transformation: 9
  - number of new features: 82
@@ -66,10 +66,10 @@ features to transform:
 
 ```
 
-Method `transform(self, data, verbose)` generates a pandas. DataFrame with new features that were detected on the fit() call. If parameter verbose is true, progress description is printed during the feature extraction.
+Method `transform(data)` generates a pandas. DataFrame with new features that were detected and trained on the detect() and fit() calls.
 
 ```python
->>> df = datapot.transform(f)
+>>> df = datapot.transform(data)
 num of new features: 82
 ```
 
