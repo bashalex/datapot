@@ -40,7 +40,7 @@ To **create a Datapot** object simply write the following:
 ```
 
 
-#### DataPot has two main methods:
+#### Datapot has two main methods:
 - detect()
 - fit()
 - transform()
@@ -94,7 +94,7 @@ Data types that can be processed:
  - Categorial (one-hot encoding, dimension reduction)
  
  Manually selected fields:
- - Identity 
+ - Identity (keep the field)
  - Group Dimensionality Reduce (change the dimensionality of features in the same JSON field) 
 
 
