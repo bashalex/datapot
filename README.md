@@ -47,7 +47,7 @@ To **create a Datapot** object simply write the following:
 
 Method `detect(data, limit)` goes through the first N  objects (N = limit), passes the possible features to Transformers. Each Transformer evaluates if a feature from current field or a number of fields can be created. As a result a dict of features and Transformers is created. Method  `fit(data)` trains the detected Transformers on the given set if it is required. 
 
-To apply `fit(data)` to JSON file:
+To apply `detect()` and `fit()` to JSON Lines file:
 ```python
 >>> data = open('datapot/data/job.jsonlines', 'r')
 >>> datapot.detect(data, limit=100)
@@ -91,10 +91,10 @@ Data types that can be processed:
  - Time series (сalculate descriptive statistical properties of a given time series)
  - Timestamp  (date, time, day of week, day of month etc.)
  - Text (bag of words tf-idf, word2vec)
- - Categorial (one-hot encoding, dimension reduction)
+ - Categorical (one-hot encoding, dimension reduction)
  
- Manually selected fields:
- - Identity (keep the field)
+ Manually selected features:
+ - Identity (keep the field unchanged)
  - Group Dimensionality Reduce (change the dimensionality of features in the same JSON field) 
 
 
