@@ -24,7 +24,7 @@ Using `pip`:
 $ pip install datapot
 ```
 
-Or clone DataPot repo:
+Or clone Datapot repo:
 
 ```bash
 $ git clone https://github.com/bashalex/datapot.git
