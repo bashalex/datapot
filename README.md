@@ -15,7 +15,17 @@ The idea of Datapot is to make the process of data preparation and feature extra
 ## Usage
 
 
-**Install Datapot:**
+
+**Install Datapot**
+
+Using `pip`:
+
+```bash
+$ pip install datapot
+```
+
+Or clone Datapot repo:
+
 ```bash
 $ git clone https://github.com/bashalex/datapot.git
 $ cd datapot
@@ -26,40 +36,41 @@ To **create a Datapot** object simply write the following:
 
 ```python
 >>> import datapot as dp 
->>> data = dp.DataPot()
+>>> datapot = dp.DataPot()
 ```
 
 
-#### DataPot has two main methods:
+#### Datapot has two main methods:
+- detect()
 - fit()
 - transform()
 
-Method `fit(self, data, limit)` goes through the first  N  objects (N = limit), passes the possible features to Transformers. Each Transformer evaluates if a feature from current field or a number of fields can be created. As a result a dict of features  and Transformers is created.
+Method `detect(data, limit)` goes through the first N  objects (N = limit), passes the possible features to Transformers. Each Transformer evaluates if a feature from current field or a number of fields can be created. As a result a dict of features and Transformers is created. Method  `fit(data)` trains the detected Transformers on the given set if it is required. 
 
-To apply `fit()` to JSON file:
+To apply `detect()` and `fit()` to JSON Lines file:
 ```python
->>> f = open('data/matches_test.jsonlines', 'r')
->>> data.fit(f, limit=100)
->>> data
+>>> data = open('datapot/data/job.jsonlines', 'r')
+>>> datapot.detect(data, limit=100)
+>>> datapot.fit(data)
 DataPot class instance
- - number of features without transformation: 806
- - number of new features: 315
+ - number of features without transformation: 9
+ - number of new features: 82
 features to transform: 
-    (u'players.0.gold_t', [ComplexTransformer])
-    (u'picks_bans.0.is_pick', [BoolToIntTransformer])
-    (u'players.0.kills_log.0.unit', [TfidfTransformer])
-    (u'players.1.xp_t', [ComplexTransformer])
-    (u'picks_bans.1.is_pick', [BoolToIntTransformer])
-    (u'players.1.kills_log.0.unit', [TfidfTransformer])
-    ...
+	('Id', [NumericTransformer])
+	('FullDescription', [TfidfTransformer])
+	('ContractType', [SVDOneHotTransformer])
+	('ContractTime', [SVDOneHotTransformer])
+	('Company', [SVDOneHotTransformer])
+	('Category', [SVDOneHotTransformer])
+	('SalaryNormalized', [NumericTransformer])
+
 ```
 
-Method `transform(self, data, verbose)` generates a pandas. DataFrame with new features that were detected on the fit() call. If parameter verbose is true, progress description is printed during the feature extraction.
+Method `transform(data)` generates a pandas. DataFrame with new features that were detected and trained on the detect() and fit() calls.
 
 ```python
->>> df = data.transform(f, verbose=False)
-fit transformers...OK
-num of new features: 315
+>>> df = datapot.transform(data)
+num of new features: 82
 ```
 
 
@@ -75,11 +86,16 @@ Datapot provides many ways of extracting features from JSON-s.
 
 Data types that can be processed:
  - Boolean 
+ - Numerical
  - Numerical array (transform array to their sum divided by average length of array in training set)
  - Time series (сalculate descriptive statistical properties of a given time series)
  - Timestamp  (date, time, day of week, day of month etc.)
  - Text (bag of words tf-idf, word2vec)
- - Categorial (one-hot encoding, dimension reduction)
+ - Categorical (one-hot encoding, dimension reduction)
+ 
+ Manually selected features:
+ - Identity (keep the field unchanged)
+ - Group Dimensionality Reduce (change the dimensionality of features in the same JSON field) 
 
 
 ## Authors
