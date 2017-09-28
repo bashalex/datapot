@@ -5,7 +5,6 @@ from tsfresh.feature_extraction.feature_calculators import (
     count_below_mean,
     kurtosis,
     mean_abs_change,
-    mean_autocorrelation,
     skewness,
     symmetry_looking
 )
@@ -69,7 +68,6 @@ class TimeSeriesTransformer(BaseTransformer):
             'ts_abs_energy',
             'ts_kurtosis',
             'ts_mean_abs_change',
-            'ts_mean_autocorrelation',
             'ts_skewness',
             'ts_count_above_mean',
             'ts_count_below_mean'
@@ -108,7 +106,6 @@ class TimeSeriesTransformer(BaseTransformer):
                 abs_energy(value),
                 kurtosis(value),
                 mean_abs_change(value),
-                mean_autocorrelation(value),
                 skewness(value),
                 count_above_mean(value)/len(value),
                 count_below_mean(value)/len(value)
